@@ -1,14 +1,15 @@
+from kivy.config import Config
+Config.set('graphics', 'width', '400')
+Config.set('graphics', 'height', '650')
+Config.set('graphics', 'resizable', False)
+
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.button import Button
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
-from kivy.config import Config
 from kivy.graphics import Color, Rectangle
+from kivy.uix.textinput import TextInput
 
-
-Config.set('graphics', 'width', '400')
-Config.set('graphics', 'height', '650')
 
 class LoginScreen(Screen):
     def __init__(self, **kwargs):
@@ -20,6 +21,25 @@ class LoginScreen(Screen):
             self.bg_rect = Rectangle(size=layout.size, pos=layout.pos)
 
         layout.bind(size=self.update_bg, pos=self.update_bg)
+
+        self.username = TextInput(
+            hint_text="Nom d'utilisateur",
+            multiline=False,
+            size_hint=(None, None),
+            size=(200, 50),
+            pos=(100, 380)
+        )
+
+        self.password = TextInput(
+            hint_text="Mot de passe",
+            multiline=False,
+            size_hint=(None, None),
+            size=(200, 50),
+            pos=(100, 320)
+        )
+
+        layout.add_widget(self.username)
+        layout.add_widget(self.password)
 
         btn_log = Button(
             text="Connexion",
