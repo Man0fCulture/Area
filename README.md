@@ -19,7 +19,7 @@ L’objectif est de voir comment foncitonne Kivy pour la realisation d'une appli
 
 ---
 
-## ⚠️ Points négatifs
+## 🚫 Points négatifs
 
 - **Pas très agréable à coder** : `FloatLayout` rend la gestion des positions lourde et répétitive.  
 - **Pas très beau** : l’interface graphique reste très basique, sans design travaillé.  
