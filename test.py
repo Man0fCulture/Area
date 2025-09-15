@@ -14,6 +14,7 @@ from kivy.uix.label import Label
 class LoginScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.user_data = None
         layout = FloatLayout()
 
         with layout.canvas.before:
@@ -76,13 +77,17 @@ class LoginScreen(Screen):
         self.bg_rect.pos = instance.pos
 
     def go_to_login(self, instance):
-        self.manager.current = "login"
+        self.manager.current = "register"
     
     def check_log(self, instance):
+        self.user_data = self.app.user_data
+        if self.user_data == None:
+            return
+
         user_text = self.username.text
         password_text = self.password.text
         print(user_text, password_text)
-        if user_text == "enzo" and password_text == "enzo":
+        if user_text == self.user_data["username"] and password_text == self.user_data["password"]:
             print("IN")
             self.user = user_text
             self.greeting_label.text = f"Bonjour, {self.user} !"
@@ -91,6 +96,7 @@ class LoginScreen(Screen):
 class RegisterScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.user_data = None
         layout = FloatLayout()
 
         with layout.canvas.before:
@@ -140,7 +146,7 @@ class RegisterScreen(Screen):
             size=(200, 100),
             pos=(100, 100)
         )
-        btn_register.bind(on_press=self.go_to_register)
+        btn_register.bind(on_press=self.create_user)
         btn.bind(on_press=self.go_to_register)
         layout.add_widget(btn)
         layout.add_widget(btn_register)
@@ -151,14 +157,30 @@ class RegisterScreen(Screen):
         self.bg_rect.pos = instance.pos
 
     def go_to_register(self, instance):
-        self.manager.current = "register"
+        self.manager.current = "login"
+    
+    def create_user(self, instance):
+        if self.username.text != None and self.password.text != None:
+            self.user_data = self.app.user_data
+            self.user_data['username'] = self.username.text
+            self.user_data['password'] = self.password.text
+            print("Utilisateur enregistré :", self.user_data)
+            self.go_to_register(instance)
 
 
 class MyApp(App):
     def build(self):
+        self.user_data = {}
         sm = ScreenManager()
-        sm.add_widget(LoginScreen(name="register"))
-        sm.add_widget(RegisterScreen(name="login"))
+        self.login_screen = LoginScreen(name="login")
+        self.register_screen = RegisterScreen(name="register")
+
+        self.login_screen.app = self
+        self.register_screen.app = self
+
+        sm.add_widget(self.login_screen)
+        sm.add_widget(self.register_screen)
+
         return sm
 
 
