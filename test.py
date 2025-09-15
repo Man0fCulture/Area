@@ -9,7 +9,7 @@ from kivy.uix.button import Button
 from kivy.uix.floatlayout import FloatLayout
 from kivy.graphics import Color, Rectangle
 from kivy.uix.textinput import TextInput
-
+from kivy.uix.label import Label
 
 class LoginScreen(Screen):
     def __init__(self, **kwargs):
@@ -21,6 +21,17 @@ class LoginScreen(Screen):
             self.bg_rect = Rectangle(size=layout.size, pos=layout.pos)
 
         layout.bind(size=self.update_bg, pos=self.update_bg)
+
+        self.user = None
+
+        self.greeting_label = Label(
+            text=f"Bonjour !",
+            font_size=24,
+            size_hint=(None, None),
+            size=(200, 50),
+            pos=(100, 500)
+        )
+        layout.add_widget(self.greeting_label)
 
         self.username = TextInput(
             hint_text="Nom d'utilisateur",
@@ -68,7 +79,13 @@ class LoginScreen(Screen):
         self.manager.current = "login"
     
     def check_log(self, instance):
-        print("ok")
+        user_text = self.username.text
+        password_text = self.password.text
+        print(user_text, password_text)
+        if user_text == "enzo" and password_text == "enzo":
+            print("IN")
+            self.user = user_text
+            self.greeting_label.text = f"Bonjour, {self.user} !"
 
 
 class RegisterScreen(Screen):
@@ -82,14 +99,51 @@ class RegisterScreen(Screen):
 
         layout.bind(size=self.update_bg, pos=self.update_bg)
 
+        self.greeting_label = Label(
+            text=f"Créer un compte !",
+            font_size=24,
+            size_hint=(None, None),
+            size=(200, 50),
+            pos=(100, 500)
+        )
+        layout.add_widget(self.greeting_label)
+
+        self.username = TextInput(
+            hint_text="Nom d'utilisateur",
+            multiline=False,
+            size_hint=(None, None),
+            size=(200, 50),
+            pos=(100, 380)
+        )
+
+        self.password = TextInput(
+            hint_text="Mot de passe",
+            multiline=False,
+            size_hint=(None, None),
+            size=(200, 50),
+            pos=(100, 320)
+        )
+
+        layout.add_widget(self.username)
+        layout.add_widget(self.password)
+
+        btn_register = Button(
+            text="S'enregister !",
+            size_hint=(None, None),
+            size=(200, 100),
+            pos=(100, 210)
+        )
+
         btn = Button(
-            text="S'enregistrer",
+            text="Déja un compte?",
             size_hint=(None, None),
             size=(200, 100),
             pos=(100, 100)
         )
+        btn_register.bind(on_press=self.go_to_register)
         btn.bind(on_press=self.go_to_register)
         layout.add_widget(btn)
+        layout.add_widget(btn_register)
         self.add_widget(layout)
 
     def update_bg(self, instance, value):
