@@ -11,6 +11,14 @@ L’objectif est de voir comment fonctionne Kivy pour la réalisation d’une ap
 - Validation de la faisabilité d’un système login/register simple.  
 - Tester l’ergonomie des écrans avec Kivy.  
 - Vérifier la gestion des entrées utilisateur et la navigation entre écrans.
+  
+Portée du POC : 
+
+Ce prototype se concentre uniquement sur la validation technique et l’ergonomie.
+Il n’inclut pas :
+- De mécanismes de sécurité (ex. chiffrement des mots de passe),
+- De persistance des données via une base de données,
+- Ni de design graphique abouti (interface volontairement basique).
 
 ---
 
