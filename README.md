@@ -3,11 +3,14 @@
 ## 📖 Description
 
 **POC (Proof of Concept)** d’un système de **connexion / inscription** réalisé avec **Python** et **Kivy**.  
-L’application propose deux écrans :  
+L’application propose deux écrans :
 - **Login** : permettre à un utilisateur de se connecter.  
 - **Register** : créer un nouveau compte utilisateur.  
 
-L’objectif est de voir comment foncitonne Kivy pour la realisation d'une application mobile.  
+L’objectif est de voir comment fonctionne Kivy pour la réalisation d’une application mobile, à travers 3 axes principaux :
+- Validation de la faisabilité d’un système login/register simple.  
+- Tester l’ergonomie des écrans avec Kivy.  
+- Vérifier la gestion des entrées utilisateur et la navigation entre écrans.
 
 ---
 
