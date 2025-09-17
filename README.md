@@ -46,19 +46,19 @@ Il n’inclut pas :
 ---
 ## 🚀 Demo
 
-### Login page connexion réussie:
-
-<img src="readme/Co.png" alt="Connexion" width="300">
 
 ### Login page:
+<img src="readme/Co.png" alt="Connexion" width="300">
 
+
+### Login page connexion réussie:
 <img src="readme/Log.png" alt="Connexion" width="300">
 
 ### Register page:
 
 <img src="readme/register.png" alt="Connexion" width="300">
 
-### Register reussie:
+### Register:
 
 <img src="readme/regSuccess.png" alt="Connexion" width="300">
 
