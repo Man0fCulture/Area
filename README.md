@@ -11,6 +11,12 @@ L’objectif est de tester Flutter, d’évaluer sa facilité de prise en main e
 - **Écosystème actif** : Flutter est maintenu et mis à jour régulièrement par Google.  
 - **Pérennité** : une grande partie des projets mobiles modernes sont développés en Flutter, ce qui en fait une compétence précieuse pour l’avenir.  
 
+
+## Points Négatifs
+ - Nouvel apprentissage : Flutter utilise le langage Dart, qu’il faut apprendre avant de pouvoir pleinement l’exploiter.
+ - Moins de maturité que le natif : certaines nouveautés propres à Android ou iOS peuvent mettre un peu plus de temps à être disponibles sur Flutter.
+ (Exemple → lorsqu’Apple a introduit Face ID ou App Clips, ou quand Android a lancé les bulles de notifications (Chat Heads style Messenger), Flutter a mis un certain temps à proposer des plugins officiels ou communautaires pour en tirer parti.)
+ 
 ## 🛠️ Installation & Lancement  
 1. Installer Flutter : [Documentation officielle](https://docs.flutter.dev/get-started/install)  
 2. Vérifier l’installation :  
