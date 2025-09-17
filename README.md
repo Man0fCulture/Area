@@ -36,6 +36,20 @@ Il n’inclut pas :
 - **Pas très beau** : l’interface graphique reste très basique, sans design travaillé.  
 - **Installation fastidieuse** : Kivy nécessite plusieurs dépendances, ce qui peut compliquer l’installation selon l’environnement.  
 
+## 🚀 Demo
+
+### Login page:
+
+<img src="readme/Connexion.png" alt="Connexion" width="300">
+
+### Register page:
+
+<img src="readme/Register.png" alt="Connexion" width="300">
+
+### Login page connexion réussie:
+
+<img src="readme/Co.png" alt="Connexion" width="300">
+
 ---
 
 ## 🚀 Installation
