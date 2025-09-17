@@ -32,8 +32,8 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     db_user = User(
         email=user.email,
         password=hashed_password,
-        first_name=user.first_name,
-        last_name=user.last_name
+        first_name=user.firstName,
+        last_name=user.lastName
     )
     db.add(db_user)
     db.commit()
@@ -46,8 +46,8 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
         user=UserResponse(
             id=str(db_user.id),
             email=db_user.email,
-            first_name=db_user.first_name,
-            last_name=db_user.last_name
+            firstName=db_user.first_name,
+            lastName=db_user.last_name
         )
     )
 
@@ -64,8 +64,8 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
         user=UserResponse(
             id=str(db_user.id),
             email=db_user.email,
-            first_name=db_user.first_name,
-            last_name=db_user.last_name
+            firstName=db_user.first_name,
+            lastName=db_user.last_name
         )
     )
 

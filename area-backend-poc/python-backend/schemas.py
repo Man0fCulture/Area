@@ -1,20 +1,20 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, Field
 
 class UserCreate(BaseModel):
-    email: EmailStr
+    email: str
     password: str
-    first_name: str
-    last_name: str
+    firstName: str = Field(alias="firstName")
+    lastName: str = Field(alias="lastName")
 
 class UserLogin(BaseModel):
-    email: EmailStr
+    email: str
     password: str
 
 class UserResponse(BaseModel):
     id: str
     email: str
-    first_name: str
-    last_name: str
+    firstName: str
+    lastName: str
 
 class AuthResponse(BaseModel):
     token: str
