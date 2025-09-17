@@ -1,15 +1,15 @@
-# 📝 POC MOBILE: Kivy Système de Login / Register
+# 📝 POC MOBILE: Kotlin Système de Login / Register
 
 ## 📖 Description
 
-**POC (Proof of Concept)** d’un système de **connexion / inscription** réalisé avec **Python** et **Kivy**.  
+**POC (Proof of Concept)** d’un système de **connexion / inscription** réalisé avec **Kotlin**.  
 L’application propose deux écrans :
 - **Login** : permettre à un utilisateur de se connecter.  
 - **Register** : créer un nouveau compte utilisateur.  
 
-L’objectif est de voir comment fonctionne Kivy pour la réalisation d’une application mobile, à travers 3 axes principaux :
+L’objectif est de voir comment fonctionne Kotlin pour la réalisation d’une application mobile, à travers 3 axes principaux :
 - Validation de la faisabilité d’un système login/register simple.  
-- Tester l’ergonomie des écrans avec Kivy.  
+- Tester l’ergonomie des écrans avec Kotlin.  
 - Vérifier la gestion des entrées utilisateur et la navigation entre écrans.
   
 Portée du POC : 
@@ -25,7 +25,7 @@ Il n’inclut pas :
 ## ✅ Points positifs
 
 - **Facile à utiliser** : une fois installé, l’application est intuitive.  
-- **Code minimaliste** : facile pour apprendre les bases de Kivy.  
+- **Code minimaliste** : facile pour apprendre les bases de Kotlin.  
 - **Rapide à mettre en place** : peu de lignes suffisent pour obtenir un système fonctionnel.  
 
 ---
@@ -56,7 +56,7 @@ Il n’inclut pas :
 
 ## 🚀 Installation
 
-https://kivy.org/doc/stable/gettingstarted/installation.html
+https://kotlinlang.org/docs/command-line.html#manual-install
 
 ---
 
