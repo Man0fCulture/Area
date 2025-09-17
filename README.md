@@ -38,6 +38,12 @@ Il n’inclut pas :
 
 ---
 
+## Test 
+
+ - kotlinc test.kt -include-runtime -d test.jar
+ - java -jar test.jar
+
+---
 ## 🚀 Demo
 
 ### Login page:
