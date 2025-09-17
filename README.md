@@ -46,7 +46,6 @@ Il n’inclut pas :
 ---
 ## 🚀 Demo
 
-
 ### Login page:
 <img src="readme/Log.png" alt="Connexion" width="300">
 
@@ -60,8 +59,6 @@ Il n’inclut pas :
 ### Register:
 
 <img src="readme/regSuccess.png" alt="Connexion" width="300">
-
-
 
 ---
 
