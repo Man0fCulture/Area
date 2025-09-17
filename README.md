@@ -40,6 +40,11 @@ Il n’inclut pas :
 
 ## 🚀 Installation
 
+
+---
+
+## 🚀 Installation
+
 https://kivy.org/doc/stable/gettingstarted/installation.html
 
 ---
