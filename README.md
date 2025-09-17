@@ -48,4 +48,4 @@ Flutter s’est révélé être un framework :
 - **efficace à utiliser**,  
 - et **prometteur pour l’avenir**.  
 
-Au vu de notre expérience avec ce POC, nous pensons que **Flutter serait le meilleur choix pour nos projets futurs professionnels**, car c’est aujourd’hui l’un des frameworks **les plus demandés sur le marché**.  
+Au vu de notre expérience avec ce POC, nous pensons que **Flutter serait le meilleur choix pour nos projets futurs professionnels**, car c’est aujourd’hui l’un des frameworks **les plus demandés sur le marché** c'est donc celui que nous utiliserons pour AREA.  
