@@ -50,7 +50,6 @@ fun createLoginFrame(): JFrame {
     return frame
 }
 
-// ---------- REGISTER ----------
 fun createRegisterFrame(): JFrame {
     val frame = JFrame("POC KOTLIN - Register")
     frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
