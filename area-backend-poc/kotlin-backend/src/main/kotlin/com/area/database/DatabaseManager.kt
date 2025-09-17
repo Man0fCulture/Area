@@ -23,6 +23,24 @@ class DatabaseManager(val config: Config) {
     private val mongoEnabled = config.getBoolean("database.mongodb.enabled")
     private val influxEnabled = config.getBoolean("database.influxdb.enabled")
 
+    companion object {
+        @Volatile
+        private var INSTANCE: DatabaseManager? = null
+
+        fun getInstance(): DatabaseManager {
+            return INSTANCE ?: throw IllegalStateException("DatabaseManager not initialized")
+        }
+
+        fun initialize(config: Config): DatabaseManager {
+            return INSTANCE ?: synchronized(this) {
+                INSTANCE ?: DatabaseManager(config).also {
+                    INSTANCE = it
+                    it.init()
+                }
+            }
+        }
+    }
+
     fun init() {
         logger.info("Initializing database connections...")
 

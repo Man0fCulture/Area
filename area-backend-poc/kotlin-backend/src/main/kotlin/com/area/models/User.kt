@@ -2,6 +2,8 @@ package com.area.models
 
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.javatime.datetime
+import java.time.LocalDateTime
 
 // Table definition for PostgreSQL
 object Users : Table() {
@@ -10,6 +12,9 @@ object Users : Table() {
     val password = varchar("password", 255)
     val firstName = varchar("first_name", 100)
     val lastName = varchar("last_name", 100)
+    val isActive = bool("is_active").default(true)
+    val createdAt = datetime("created_at").default(LocalDateTime.now())
+    val updatedAt = datetime("updated_at").default(LocalDateTime.now())
 
     override val primaryKey = PrimaryKey(id)
 }
@@ -30,6 +35,12 @@ data class UserRequest(
     val password: String,
     val firstName: String,
     val lastName: String
+)
+
+@Serializable
+data class LoginRequest(
+    val email: String,
+    val password: String
 )
 
 @Serializable

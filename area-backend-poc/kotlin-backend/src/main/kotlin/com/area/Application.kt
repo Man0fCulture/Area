@@ -11,10 +11,9 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.http.*
 import com.typesafe.config.ConfigFactory
-import io.ktor.util.*
 
 fun main() {
-    val port = System.getenv("PORT")?.toIntOrNull() ?: 8080
+    val port = System.getenv("PORT")?.toIntOrNull() ?: 8082
 
     embeddedServer(Netty, port = port, host = "0.0.0.0") {
         module()
@@ -26,11 +25,7 @@ fun Application.module() {
     val appConfig = ConfigFactory.load()
 
     // Initialize all databases
-    val databaseManager = DatabaseManager(appConfig)
-    databaseManager.init()
-
-    // Store database manager in application attributes for use in routes
-    attributes.put(AttributeKey<DatabaseManager>("DatabaseManager"), databaseManager)
+    val databaseManager = DatabaseManager.initialize(appConfig)
 
     // Register shutdown hook
     environment.monitor.subscribe(ApplicationStopped) {
