@@ -1,40 +1,64 @@
-# 📝 POC MOBILE: Kivy Système de Login / Register
+# 📝 POC Mobile – Kivy (Login / Register)
 
-## 📖 Description
+## 🎯 Objectif  
+Ce projet est un **POC (Proof of Concept)** visant à tester le développement mobile avec **Python** et **Kivy**.  
+L’objectif est de valider :  
+- la **faisabilité** d’un système simple de **connexion / inscription**,  
+- l’**ergonomie** des écrans avec Kivy,  
+- la **gestion des entrées utilisateur** et la navigation entre plusieurs écrans.  
 
-**POC (Proof of Concept)** d’un système de **connexion / inscription** réalisé avec **Python** et **Kivy**.  
-L’application propose deux écrans :
-- **Login** : permettre à un utilisateur de se connecter.  
-- **Register** : créer un nouveau compte utilisateur.  
+👉 Ce prototype se concentre uniquement sur la validation technique et ergonomique.  
+Il n’inclut pas :  
+- de sécurité avancée (ex. chiffrement des mots de passe),  
+- de persistance via une base de données,  
+- ni de design graphique abouti (interfaces volontairement simples).  
 
-L’objectif est de voir comment fonctionne Kivy pour la réalisation d’une application mobile, à travers 3 axes principaux :
-- Validation de la faisabilité d’un système login/register simple.  
-- Tester l’ergonomie des écrans avec Kivy.  
-- Vérifier la gestion des entrées utilisateur et la navigation entre écrans.
-  
-Portée du POC : 
+---
 
-Ce prototype se concentre uniquement sur la validation technique et l’ergonomie.
-Il n’inclut pas :
-- De mécanismes de sécurité (ex. chiffrement des mots de passe),
-- De persistance des données via une base de données,
-- Ni de design graphique abouti (interface volontairement basique).
+## 🚀 Pourquoi Kivy ?  
+- **Framework Python** : accessible pour les développeurs Python.  
+- **Multi-plateforme** : permet de créer des apps Android, iOS, Windows, Linux et macOS.  
+- **Rapidité de prototypage** : quelques lignes suffisent pour générer une interface.  
+- **Open-source** : actif et maintenu par une communauté engagée.  
+
+---
+
+## ⚖️ Benchmark – Comparaison avec d’autres solutions  
+
+| Critère                    | **Kivy (Python)**          | **Flutter**                     | **Kotlin (Natif Android)**    |
+|----------------------------|-----------------------------|---------------------------------|-------------------------------|
+| **Performance**            | Faible (pas optimisée)     | Quasi native (60fps)            | Optimale (100% natif)         |
+| **Temps de dev.**          | Rapide (code Python simple) | Rapide (Hot Reload)             | Plus long (Android only)      |
+| **Courbe d’apprentissage** | Faible (Python connu)      | Modérée (apprendre Dart)        | Moyenne (Android SDK)         |
+| **Taille APK/IPA**         | Lourde                     | 8–15 Mo                         | Plus léger                    |
+| **Consommation mémoire**   | Assez élevée               | Optimisée mais plus lourde       | Optimale                      |
+| **Communauté**             | Plus petite                | Large, très active              | Stable et mature              |
+| **Plugins & intégration**  | Limité                     | Riche (pub.dev)                 | 100% supporté par l’OS        |
+
+👉 **Conclusion rapide** : Kivy est idéal pour apprendre et prototyper rapidement, mais limité pour des projets professionnels exigeants.  
 
 ---
 
 ## ✅ Points positifs
-
-- **Facile à utiliser** : une fois installé, l’application est intuitive.  
-- **Code minimaliste** : facile pour apprendre les bases de Kivy.  
-- **Rapide à mettre en place** : peu de lignes suffisent pour obtenir un système fonctionnel.  
+- **Facile à utiliser** : intuitif une fois installé.  
+- **Code minimaliste** : rapide à prendre en main.  
+- **Prototypage rapide** : quelques lignes suffisent pour un système fonctionnel.  
 
 ---
 
 ## 🚫 Points négatifs
+- **Pas très agréable à coder** : `FloatLayout` rend la gestion des positions lourde.  
+- **Interface basique** : pas de design travaillé.  
+- **Installation fastidieuse** : dépendances nombreuses, peut varier selon l’OS.  
 
-- **Pas très agréable à coder** : `FloatLayout` rend la gestion des positions lourde et répétitive.  
-- **Pas très beau** : l’interface graphique reste très basique, sans design travaillé.  
-- **Installation fastidieuse** : Kivy nécessite plusieurs dépendances, ce qui peut compliquer l’installation selon l’environnement.  
+---
+
+## 🛠️ Installation & Lancement  
+1. Suivre la [documentation officielle](https://kivy.org/doc/stable/gettingstarted/installation.html).  
+2. Créer un fichier Python (ex. `main.py`).  
+3. Exécuter l’application :  
+   ```bash
+   python main.py
 
 ## 🚀 Demo
 
@@ -49,12 +73,6 @@ Il n’inclut pas :
 ### Login page connexion réussie:
 
 <img src="readme/Co.png" alt="Connexion" width="300">
-
----
-
-## 🚀 Installation
-
-https://kivy.org/doc/stable/gettingstarted/installation.html
 
 ---
 
