@@ -1,40 +1,57 @@
-# 📝 POC MOBILE: Kotlin Système de Login / Register
+# 📝 POC Mobile – Kotlin (Login / Register)
 
-## 📖 Description
+## 🎯 Objectif  
+Ce projet est un **POC (Proof of Concept)** visant à tester le développement mobile avec **Kotlin (Android)**.  
+L’objectif est de valider :  
+- la **faisabilité** d’un système simple de **connexion / inscription**,  
+- l’**ergonomie** des écrans avec Kotlin,  
+- la **gestion des entrées utilisateur** et la navigation entre plusieurs écrans.  
 
-**POC (Proof of Concept)** d’un système de **connexion / inscription** réalisé avec **Kotlin**.  
-L’application propose deux écrans :
-- **Login** : permettre à un utilisateur de se connecter.  
-- **Register** : créer un nouveau compte utilisateur.  
+👉 Ce prototype se concentre sur la validation technique et ergonomique.  
+Il n’inclut pas :  
+- de sécurité avancée (ex. chiffrement des mots de passe),  
+- de persistance via une base de données,  
+- ni de design graphique abouti (interfaces volontairement simples).  
 
-L’objectif est de voir comment fonctionne Kotlin pour la réalisation d’une application mobile, à travers 3 axes principaux :
-- Validation de la faisabilité d’un système login/register simple.  
-- Tester l’ergonomie des écrans avec Kotlin.  
-- Vérifier la gestion des entrées utilisateur et la navigation entre écrans.
-  
-Portée du POC : 
+---
 
-Ce prototype se concentre uniquement sur la validation technique et l’ergonomie.
-Il n’inclut pas :
-- De mécanismes de sécurité (ex. chiffrement des mots de passe),
-- De persistance des données via une base de données,
-- Ni de design graphique abouti (interface volontairement basique).
+## 🚀 Pourquoi Kotlin ?  
+- **Langage officiel Android** : maintenu et promu par Google.  
+- **Interopérable avec Java** : compatible avec l’écosystème existant.  
+- **Modernité** : syntaxe concise, null-safety, lambdas.  
+- **Productivité** : très bien intégré à Android Studio, génération rapide d’apps.  
+- **Pérennité** : adopté par la majorité des projets Android récents.  
+
+---
+
+## ⚖️ Benchmark – Comparaison avec d’autres solutions  
+
+| Critère                    | **Kotlin (Natif Android)** | **Flutter**                     | **React Native**                |
+|----------------------------|----------------------------|---------------------------------|---------------------------------|
+| **Performance**            | Optimale (100% natif)      | Quasi native (60fps)            | Correcte, parfois bridée        |
+| **Temps de dev.**          | Plus long (Android only)   | Rapide (Hot Reload)             | Rapide (Fast Refresh)           |
+| **Courbe d’apprentissage** | Moyenne (Android SDK)      | Modérée (apprendre Dart)        | Faible (JS connu)               |
+| **Taille APK/IPA**         | Plus léger                 | 8–15 Mo                         | 6–12 Mo                         |
+| **Consommation mémoire**   | Optimale                   | Optimisée mais plus lourde      | Moyenne                         |
+| **Communauté**             | Stable et mature           | Large, très active              | Très large                      |
+| **Plugins & intégration**  | 100% supporté par l’OS     | Riche (pub.dev)                 | Nombreux mais parfois instables |
+
+👉 **Conclusion rapide** : Kotlin reste le choix le plus performant et le plus fiable pour Android, mais au prix d’un temps de développement plus élevé.  
 
 ---
 
 ## ✅ Points positifs
-
-- **Facile à utiliser** : une fois installé, l’application est intuitive.  
-- **Code minimaliste** : facile pour apprendre les bases de Kotlin.  
-- **Rapide à mettre en place** : peu de lignes suffisent pour obtenir un système fonctionnel.  
+- **Code concis et moderne** (comparé à Java).  
+- **Intégration parfaite avec Android Studio**.  
+- **Performances optimales** (aucune couche intermédiaire).  
+- **Navigation fluide** entre les écrans.  
 
 ---
 
 ## 🚫 Points négatifs
-
-- **Pas très agréable à coder** : `FloatLayout` rend la gestion des positions lourde et répétitive.  
-- **Pas très beau** : l’interface graphique reste très basique, sans design travaillé.  
-- **Installation fastidieuse** : Kivy nécessite plusieurs dépendances, ce qui peut compliquer l’installation selon l’environnement.  
+- **Temps de développement plus long** que Flutter ou React Native.  
+- **Uniquement Android** : pas de compatibilité iOS.  
+- **Courbe d’apprentissage** : nécessite de maîtriser Android SDK et ses nombreux concepts.  
 
 ---
 
@@ -62,9 +79,15 @@ Il n’inclut pas :
 
 ---
 
-## 🚀 Installation
+## 🛠️ Installation & Lancement 
 
-https://kotlinlang.org/docs/command-line.html#manual-install
+1. Installer [Android Studio](https://developer.android.com/studio).  
+2. Cloner le projet.  
+3. Ouvrir le projet dans Android Studio.  
+4. Lancer un émulateur Android ou connecter un smartphone.  
+5. Compiler et exécuter :  
+   ```bash
+   ./gradlew installDebug
 
 ---
 
