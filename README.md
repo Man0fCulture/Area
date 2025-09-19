@@ -69,3 +69,11 @@ Flutter s’est révélé être un framework :
 
 Au vu de notre expérience avec ce POC, nous pensons que **Flutter serait le meilleur choix pour nos projets futurs professionnels**, car c’est aujourd’hui l’un des frameworks **les plus demandés sur le marché**.  
 C’est donc celui que nous utiliserons pour **AREA**.  
+
+---
+
+Alexandre De-Angelis
+Benjamin Buisson
+Enzo Petit
+Hugo Dufour
+Suleman Maqsood
