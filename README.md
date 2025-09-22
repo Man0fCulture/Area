@@ -1,214 +1,98 @@
-# Proof of Concept – Backend Technologies
+# Proof of Concept – Backend
 
 ## 🎯 Objectif
-Ce projet est un **POC (Proof of Concept)** réalisé dans le cadre d'une étude comparative de plusieurs langages et frameworks de développement backend.
-L'objectif est de tester différentes technologies backend (Node.js/Express, Python/FastAPI, Kotlin/Ktor), d'évaluer leur facilité de prise en main et de juger leur pertinence pour nos futurs projets.
 
-## 🚀 Pourquoi Kotlin/Ktor ?
-- **Langage moderne** : Syntaxe concise et expressive, inspirée des meilleurs langages
-- **JVM Power** : Bénéficie de 25 ans d'optimisation de la JVM
-- **Type-safe** : Élimine une classe entière de bugs grâce au typage fort
-- **Coroutines natives** : Gestion de la concurrence plus élégante qu'async/await
-- **Null safety** : Plus jamais de NullPointerException
-- **Interopérabilité** : Compatible avec tout l'écosystème Java
-- **Google's choice** : Langage officiel Android = compétence hautement valorisée
+Ce projet est un POC (Proof of Concept) réalisé dans le cadre d’une étude comparative de plusieurs langages backend et bases de données.
+L’objectif est de tester Kotlin comme langage backend principal, d’évaluer son intégration avec MongoDB et d’expérimenter des patterns modernes de communication et de cache (RabbitMQ, Redis).
 
-## ⚖️ Benchmark – Comparaison des solutions backend
+## 🚀 Pourquoi Kotlin ?
 
-| Critère                    | **Express (Node.js)** ❌  | **FastAPI (Python)** ❌        | **Ktor (Kotlin)** ✅          |
-|----------------------------|---------------------------|--------------------------------|-------------------------------|
-| **Performance**            | Moyenne (single-thread)   | Bonne (mais GIL)               | **Excellente** (JVM + coroutines) |
-| **Temps de dev.**          | Rapide mais dette technique | Rapide mais pas scalable    | **Optimal** (code maintenable) |
-| **Courbe d'apprentissage** | Trompeuse (simple puis chaos) | Trompeuse (simple puis lent) | **Investissement rentable**   |
-| **Écosystème**             | npm = chaos de dépendances | pip = versions conflits        | **Maven = stabilité**         |
-| **Type Safety**            | ❌ Inexistant             | ❌ Optionnel                   | ✅ **Obligatoire**            |
-| **Consommation mémoire**   | Fuites fréquentes         | OK mais lent                   | **Optimisée par JVM**         |
-| **Documentation**          | Variable                  | Auto mais basique              | **KDoc + IDE support**        |
-| **Communauté**             | Grande mais junior        | Grande mais académique         | **Pro & Enterprise**          |
-| **Production-ready**       | ⚠️ Risqué                 | ⚠️ Limité                      | ✅ **Battle-tested**          |
-| **Salaire moyen**          | 35-50k€                   | 40-55k€                        | **55-75k€**                   |
+* 🟦 **Oriented Object (POO)** : Kotlin offre une approche très orientée objet, parfaitement adaptée à notre besoin de structurer un projet complexe avec beaucoup de services.
+* 🛠 **Interopérabilité JVM** : accès à tout l’écosystème Java (librairies, frameworks, outils).
+* ⚡ **Performance** : compilé en bytecode JVM → exécution rapide et stable.
+* 🌱 **Modernité** : syntaxe claire, conciseness, null-safety intégrée.
+* 🔄 **Asynchrone** : support natif des coroutines pour la gestion des IO non bloquants.
 
-### 🏆 Analyse des résultats
+👉 Conclusion rapide : Kotlin est un langage backend moderne, robuste et parfaitement adapté à un projet scalable.
 
-**Express (Node.js)** :
-- ✅ Écosystème JavaScript mature et vaste
-- ✅ Démarrage rapide pour les développeurs JS
-- ✅ Excellent pour les APIs REST simples
-- ❌ Pas de typage fort natif
-- ❌ Callback hell sans async/await
+## ⚖️ Benchmark – Langages Backend
 
-**FastAPI (Python)** :
-- ✅ Documentation automatique (Swagger/OpenAPI)
-- ✅ Validation des données intégrée (Pydantic)
-- ✅ Performance async exceptionnelle
-- ✅ Syntaxe très lisible et concise
-- ❌ GIL Python pour le multi-threading
+| Critère                | Kotlin (Ktor/Spring)              | Python (FastAPI/Django)        | Express (Node.js)               |
+| ---------------------- | --------------------------------- | ------------------------------ | ------------------------------- |
+| Performance            | ⚡ Excellente (JVM optimisée)      | Moyenne (interprété, GIL)      | Bonne (JS V8, event-loop)       |
+| Temps de dev.          | Rapide (POO + DSL clairs)         | Rapide (syntaxe simple)        | Rapide (JS familier)            |
+| Courbe d’apprentissage | Moyenne (apprendre Kotlin)        | Faible (Python connu)          | Faible (JS connu)               |
+| Scalabilité            | Très bonne (multi-thread natif)   | Limitée (async + workers)      | Bonne (cluster + workers)       |
+| Écosystème             | Large (JVM, Gradle, Spring, etc.) | Très large (librairies Python) | Très large (npm)                |
+| Stabilité              | Haute (Google/JetBrains)          | Bonne mais dépend des libs     | Bonne mais npm parfois instable |
 
-**Ktor (Kotlin)** :
-- ✅ Type safety complet avec Kotlin
-- ✅ Excellent pour les architectures complexes
-- ✅ Support natif de multiples bases de données
-- ✅ Coroutines pour la programmation asynchrone
-- ❌ Plus verbeux que les alternatives
-- ❌ Temps de compilation plus long
+👉 Conclusion rapide : **Kotlin est le meilleur compromis entre performance et structuration POO**. Python et Express restent valides pour des projets plus légers ou prototypage rapide, mais Kotlin prend l’avantage pour des projets à forte complexité.
 
-## 📂 Structure du projet
-```
-area-backend-poc/
-├── express-backend/      # Backend Node.js avec Express et PostgreSQL
-│   ├── server.js        # Point d'entrée du serveur
-│   ├── routes/auth.js   # Routes d'authentification
-│   └── models/User.js   # Modèle utilisateur Sequelize
-│
-├── python-backend/       # Backend Python avec FastAPI et PostgreSQL
-│   ├── main.py          # Application FastAPI
-│   ├── models.py        # Modèles SQLAlchemy
-│   └── auth.py          # Logique d'authentification
-│
-├── kotlin-backend/       # Backend Kotlin avec Ktor
-│   └── src/main/kotlin/com/area/
-│       ├── Application.kt         # Point d'entrée
-│       ├── database/              # Support multi-BDD (PostgreSQL, MongoDB, InfluxDB)
-│       └── routes/                # Routes API
-│
-└── test-front/          # Frontend React/Vite pour tester les backends
-    └── src/             # Composants React de test
-```
+## ⚖️ Benchmark – Bases de Données
+
+| Critère                | MongoDB (NoSQL)                  | PostgreSQL (SQL)                | InfluxDB (Time Series)       |
+| ---------------------- | -------------------------------- | ------------------------------- | ---------------------------- |
+| Modèle                 | Documents (flexible, JSON-like)  | Relationnel (tables, schémas)   | Time-series optimisé         |
+| Performance            | ⚡ Excellente en lecture/écriture | Très bonne, mais plus rigide    | Excellente pour métriques    |
+| Scalabilité            | Très bonne (sharding natif)      | Bonne mais complexe à gérer     | Bonne (orientée séries)      |
+| Utilisation idéale     | Données dynamiques, flexibles    | Données relationnelles strictes | Données temporelles, IoT     |
+| Courbe d’apprentissage | Moyenne (NoSQL)                  | Moyenne/élevée (SQL avancé)     | Spécialisée (plus restreint) |
+
+👉 Conclusion rapide : **MongoDB est le choix parfait pour AREA** → flexibilité des schémas, rapidité en écriture/lecture, et idéal pour manipuler des objets complexes via POO.
+
+## 🧩 Stack retenue
+
+Après analyse, la stack choisie pour ce projet est :
+
+* **Langage Backend** : Kotlin (Ktor ou Spring Boot)
+* **Base de Données** : MongoDB (NoSQL, flexible et scalable)
+* **Queue** : RabbitMQ (gestion asynchrone des actions et events)
+* **Cache** : Redis (accélération des requêtes MongoDB, sessions, pub/sub)
+
+👉 Combo final :
+
+* **Kotlin & RabbitMQ** → pour gérer et distribuer les actions.
+* **MongoDB & Redis** → pour stocker et mettre en cache efficacement les données.
 
 ## 🛠️ Installation & Lancement
 
-### Backend Express (Port 8080)
-```bash
-cd area-backend-poc/express-backend
-npm install
-npm run dev
-```
+1. Installer Kotlin + Gradle : [Documentation officielle](https://kotlinlang.org/docs/command-line.html)
+2. Installer MongoDB : [Documentation officielle](https://www.mongodb.com/docs/manual/installation/)
+3. Installer Redis : [Documentation officielle](https://redis.io/docs/getting-started/)
+4. Installer RabbitMQ : [Documentation officielle](https://www.rabbitmq.com/download.html)
+5. Vérifier l’installation :
 
-### Backend Python/FastAPI (Port 8081)
-```bash
-cd area-backend-poc/python-backend
-pip install -r requirements.txt
-python main.py
-```
+   ```bash
+   java -version
+   kotlin -version
+   mongod --version
+   redis-server --version
+   rabbitmqctl status
+   ```
+6. Lancer le projet :
 
-### Backend Kotlin/Ktor (Port 8082)
-```bash
-cd area-backend-poc/kotlin-backend
-./gradlew run
-```
+   ```bash
+   ./gradlew run
+   ```
 
-### Frontend de test
-```bash
-cd area-backend-poc/test-front
-npm install
-npm run dev
-```
+## 📂 Structure du projet
 
-## 🔧 Fonctionnalités implémentées
+Le projet contient :
 
-Chaque backend implémente les mêmes endpoints pour une comparaison équitable :
-
-- `POST /api/auth/register` : Inscription d'un nouvel utilisateur
-- `POST /api/auth/login` : Connexion avec JWT
-- `GET /about.json` : Informations sur les services disponibles
-
-### Architecture commune
-- ✅ Authentification JWT
-- ✅ Hashage des mots de passe (bcrypt)
-- ✅ Base de données PostgreSQL
-- ✅ Validation des données
-- ✅ CORS configuré
-- ✅ Gestion des erreurs
-
-## 📊 Métriques de performance réelles
-
-| Métrique                   | Express ❌  | FastAPI ❌  | Ktor ✅     |
-|---------------------------|------------|------------|-------------|
-| Temps de démarrage        | ~500ms     | ~800ms     | ~2s (avec warmup JVM) |
-| Requêtes/sec (auth)       | ~3000      | ~4500*     | **~8000** (avec coroutines) |
-| Latence P99               | 120ms      | 85ms       | **15ms**    |
-| Stabilité sous charge     | Crashes    | GIL blocks | **Stable**  |
-| Utilisation RAM (idle)    | ~50MB      | ~40MB      | ~150MB      |
-| Utilisation RAM (10k conn)| ~2GB       | ~1.5GB     | **~500MB**  |
-| Gestion 1M événements/sec | ❌ Impossible | ❌ GIL limite | ✅ **Facile** |
-
-*FastAPI semble rapide en benchmark simple mais s'écroule avec de vraies charges complexes
-
-## ❌ Pourquoi pas Python (FastAPI) ?
-
-### Limitations critiques pour un projet d'entreprise
-- **GIL (Global Interpreter Lock)** : Impossible d'exploiter pleinement le multi-threading, critique pour la scalabilité
-- **Typage dynamique** : Même avec les type hints, les erreurs de type ne sont détectées qu'au runtime
-- **Performance CPU-intensive** : Python reste 10-100x plus lent que Kotlin pour les calculs complexes
-- **Déploiement complexe** : Gestion des dépendances Python (venv, pip) problématique en production
-- **Sécurité** : Typage faible = plus de vulnérabilités potentielles non détectées à la compilation
-- **Écosystème fragmenté** : Multiples façons de faire la même chose, manque de standardisation
-
-## ❌ Pourquoi pas Node.js (Express) ?
-
-### Problèmes majeurs en production
-- **JavaScript = Chaos** : Typage inexistant, erreurs découvertes en production
-- **Callback Hell** : Code rapidement illisible avec l'asynchrone complexe
-- **NPM Security** : Écosystème NPM connu pour ses failles de sécurité et dépendances fragiles
-- **Single-threaded** : Un seul thread pour tout gérer, bottleneck en cas de charge
-- **Mémoire** : Fuites mémoire fréquentes et difficiles à débugger
-- **Pas de vraie OOP** : Prototypes JS != vraie programmation orientée objet
-- **Maintenance cauchemar** : Refactoring dangereux sans typage fort
-
-## ✅ Pourquoi Kotlin/Ktor est LE meilleur choix
-
-### Avantages décisifs
-- **Type Safety absolu** : Erreurs détectées à la compilation, pas en production
-- **Performance JVM** : 20-50x plus rapide que Python sur les calculs intensifs
-- **Coroutines** : Gestion de la concurrence supérieure à async/await
-- **Null Safety** : Fini les NullPointerException grâce au système de types
-- **Interopérabilité Java** : Accès à 20+ ans d'écosystème Java mature
-- **Code propre** : Syntaxe moderne et expressive, moins verbose que Java
+* `Application.kt` → point d’entrée backend (Ktor/Spring)
+* `services/` → gestion des services métier (POO)
+* `repository/` → gestion des accès MongoDB
+* `queue/` → gestion des consumers/producers RabbitMQ
+* `cache/` → intégration Redis
 
 ## ✅ Conclusion
 
-Après analyse comparative approfondie des trois technologies :
+Kotlin associé à MongoDB constitue une solution backend :
 
-### 🥇 **Recommandation FINALE : Kotlin/Ktor**
+* **robuste** (POO, JVM, coroutines),
+* **performante** (scalabilité et rapidité d’exécution),
+* **adaptée** à un projet complexe et orienté objets comme AREA.
 
-Kotlin avec Ktor s'impose comme **LE choix professionnel** pour un projet d'envergure :
+En ajoutant **RabbitMQ pour la gestion des actions** et **Redis pour l’optimisation des requêtes**, nous obtenons une architecture moderne, scalable et prête pour la production.
 
-#### 💪 Pourquoi Kotlin domine
-- **Robustesse Enterprise** : Utilisé par Google (Android), Netflix, Uber, Pinterest
-- **Type Safety** : 40% de bugs en moins grâce au typage fort (étude Google)
-- **Performance** : JVM optimisée depuis 25 ans, battle-tested en production
-- **Scalabilité infinie** : Gestion native du multi-threading et des coroutines
-- **Maintenabilité** : Code plus clair, refactoring sûr, dette technique minimale
-- **Écosystème mature** : Maven Central = 10 millions de librairies Java/Kotlin
-
-#### 🚀 Kotlin en production
-- **Android** : Langage officiel, 95% des top apps l'utilisent
-- **Backend** : Spring Boot + Kotlin = standard industrie
-- **Multi-plateforme** : Un code pour iOS, Android, Web, Backend
-- **Gradient de compétences** : De junior à expert, progression naturelle
-
-### 📊 Comparaison salaires moyens (France, 2024)
-- Développeur Kotlin : **55-75k€**
-- Développeur Python : **40-55k€**
-- Développeur Node.js : **35-50k€**
-
-### 🎯 Pour le projet AREA
-
-Les besoins d'AREA (multiples services, événements temps-réel, haute disponibilité) nécessitent :
-- **Fiabilité** : Kotlin garantit 0 erreur de type en production
-- **Performance** : Coroutines = millions d'événements simultanés
-- **Professionnalisme** : Code maintenable pour une équipe en croissance
-- **Multi-DB native** : PostgreSQL + MongoDB + InfluxDB déjà intégrés
-- **Sécurité** : Compilation = détection des failles en amont
-
-> **"Les vrais développeurs choisissent la robustesse plutôt que la facilité"**
-
-C'est donc **Kotlin/Ktor** que nous utiliserons pour **AREA**, car c'est la technologie qui nous préparera le mieux pour le marché professionnel.
-
----
-
-Alexandre De-Angelis
-Benjamin Buisson
-Enzo Petit
-Hugo Dufour
-Suleman Maqsood
+C’est donc la stack que nous utiliserons pour **AREA**.
