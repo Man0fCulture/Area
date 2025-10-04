@@ -1,5 +1,6 @@
 services:
-  mobile:
+
+  client_mobile:
     build:
       context: ./../mobile
       dockerfile: mobile.dockerfile
@@ -10,7 +11,7 @@ services:
       - gradle-cache:/root/.gradle
       - flutter-cache:/opt/flutter/.pub-cache
     command: ["bash", "-lc", "flutter pub get && flutter build apk --release && cp build/app/outputs/flutter-apk/app-release.apk /shared/Area.apk"]
-    
+
 volumes:
   gradle-cache:
   flutter-cache:
