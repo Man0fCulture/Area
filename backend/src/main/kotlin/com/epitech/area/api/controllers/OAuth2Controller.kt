@@ -371,13 +371,23 @@ class OAuth2Controller(
     }
 
     private fun getFrontendUrl(call: ApplicationCall): String {
-        // Get frontend URL from request headers or use default
+        // Get frontend URL from config first, then headers, then default
+        val configUrl = try {
+            config.property("frontend.url").getString()
+        } catch (e: Exception) {
+            null
+        }
+
+        if (configUrl != null && configUrl.isNotBlank()) {
+            return configUrl
+        }
+
         val origin = call.request.headers["Origin"]
         val referer = call.request.headers["Referer"]?.substringBefore("/auth")
 
         return when {
-            origin != null -> origin
-            referer != null -> referer
+            origin != null && !origin.contains("google.com") && !origin.contains("github.com") && !origin.contains("facebook.com") -> origin
+            referer != null && !referer.contains("google.com") && !referer.contains("github.com") && !referer.contains("facebook.com") -> referer
             else -> "http://localhost:3000" // Default frontend URL
         }
     }
