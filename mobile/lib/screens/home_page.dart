@@ -18,7 +18,6 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _pages = [
     const DashboardPage(),
     const ProfilePage(),
-    const SettingsPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -61,10 +60,6 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Profil',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Paramètres',
           ),
         ],
         currentIndex: _selectedIndex,
@@ -496,107 +491,3 @@ class ProfilePage extends StatelessWidget {
   }
 }
 
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16.0),
-      children: [
-        Text(
-          'Paramètres',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.blue[800],
-          ),
-        ),
-        const SizedBox(height: 16),
-        _buildSettingsSection(
-          title: 'Compte',
-          items: [
-            _buildSettingsItem(
-              icon: Icons.person,
-              title: 'Informations personnelles',
-              onTap: () {},
-            ),
-            _buildSettingsItem(
-              icon: Icons.security,
-              title: 'Sécurité',
-              onTap: () {},
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        _buildSettingsSection(
-          title: 'Préférences',
-          items: [
-            _buildSettingsItem(
-              icon: Icons.notifications,
-              title: 'Notifications',
-              onTap: () {},
-            ),
-            _buildSettingsItem(
-              icon: Icons.language,
-              title: 'Langue',
-              onTap: () {},
-            ),
-            _buildSettingsItem(
-              icon: Icons.dark_mode,
-              title: 'Thème',
-              onTap: () {},
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        _buildSettingsSection(
-          title: 'Support',
-          items: [
-            _buildSettingsItem(
-              icon: Icons.help,
-              title: 'Aide',
-              onTap: () {},
-            ),
-            _buildSettingsItem(
-              icon: Icons.info,
-              title: 'À propos',
-              onTap: () {},
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSettingsSection({required String title, required List<Widget> items}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          child: Text(
-            title,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[700],
-            ),
-          ),
-        ),
-        Card(
-          child: Column(children: items),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSettingsItem({required IconData icon, required String title, required VoidCallback onTap}) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.blue),
-      title: Text(title),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-      onTap: onTap,
-    );
-  }
-}
