@@ -24,12 +24,30 @@ class RabbitMQConsumer(
 
     fun startConsuming() {
         logger.info("Starting RabbitMQ consumers...")
-        
+
+        // Ensure queues exist before trying to consume
+        ensureQueuesExist()
+
         startActionConsumer()
         startReactionConsumer()
         startNotificationConsumer()
-        
+
         logger.info("All RabbitMQ consumers started")
+    }
+
+    private fun ensureQueuesExist() {
+        val channel = connection.connection.createChannel()
+        try {
+            channel.queueDeclare(RabbitMQPublisher.ACTION_QUEUE, true, false, false, null)
+            channel.queueDeclare(RabbitMQPublisher.REACTION_QUEUE, true, false, false, null)
+            channel.queueDeclare(RabbitMQPublisher.NOTIFICATION_QUEUE, true, false, false, null)
+            logger.info("RabbitMQ queues ensured: ${RabbitMQPublisher.ACTION_QUEUE}, ${RabbitMQPublisher.REACTION_QUEUE}, ${RabbitMQPublisher.NOTIFICATION_QUEUE}")
+        } catch (e: Exception) {
+            logger.error("Failed to declare queues", e)
+            throw e
+        } finally {
+            channel.close()
+        }
     }
 
     private fun startActionConsumer() {
