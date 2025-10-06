@@ -14,7 +14,8 @@ data class TokenPair(
 
 data class JwtPayload(
     val userId: String,
-    val email: String
+    val email: String,
+    val username: String? = null
 )
 
 class JwtService(
@@ -26,7 +27,7 @@ class JwtService(
 ) {
     private val algorithm = Algorithm.HMAC256(secret)
 
-    fun generateTokenPair(userId: ObjectId, email: String): TokenPair {
+    fun generateTokenPair(userId: ObjectId, email: String, username: String? = null): TokenPair {
         val now = Date()
 
         val accessToken = JWT.create()
@@ -34,6 +35,7 @@ class JwtService(
             .withIssuer(issuer)
             .withSubject(userId.toHexString())
             .withClaim("email", email)
+            .apply { username?.let { withClaim("username", it) } }
             .withClaim("type", "access")
             .withIssuedAt(now)
             .withExpiresAt(Date(now.time + accessTokenExpiration))
@@ -44,6 +46,7 @@ class JwtService(
             .withIssuer(issuer)
             .withSubject(userId.toHexString())
             .withClaim("email", email)
+            .apply { username?.let { withClaim("username", it) } }
             .withClaim("type", "refresh")
             .withIssuedAt(now)
             .withExpiresAt(Date(now.time + refreshTokenExpiration))
@@ -65,7 +68,8 @@ class JwtService(
             val decoded = verifyToken(token)
             JwtPayload(
                 userId = decoded.subject,
-                email = decoded.getClaim("email").asString()
+                email = decoded.getClaim("email").asString(),
+                username = decoded.getClaim("username")?.asString()
             )
         } catch (e: Exception) {
             null

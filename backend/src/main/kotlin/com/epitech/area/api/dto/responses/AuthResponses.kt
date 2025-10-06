@@ -19,6 +19,13 @@ data class UserResponse(
 )
 
 @Serializable
+data class AuthResponse(
+    val user: UserResponse,
+    val accessToken: String,
+    val refreshToken: String
+)
+
+@Serializable
 data class ErrorResponse(
     val error: String,
     val message: String

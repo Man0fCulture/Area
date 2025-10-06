@@ -3,8 +3,10 @@ package com.epitech.area.api.controllers
 import com.epitech.area.api.dto.requests.LoginRequest
 import com.epitech.area.api.dto.requests.RefreshTokenRequest
 import com.epitech.area.api.dto.requests.RegisterRequest
+import com.epitech.area.api.dto.responses.AuthResponse
 import com.epitech.area.api.dto.responses.ErrorResponse
 import com.epitech.area.api.dto.responses.TokenResponse
+import com.epitech.area.api.dto.responses.UserResponse
 import com.epitech.area.application.services.AuthService
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -20,13 +22,18 @@ fun Route.authRoutes(authService: AuthService) {
             val result = authService.register(request.email, request.password, request.username)
 
             result.fold(
-                onSuccess = { tokens ->
+                onSuccess = { authResult ->
                     call.respond(
                         HttpStatusCode.Created,
-                        TokenResponse(
-                            accessToken = tokens.accessToken,
-                            refreshToken = tokens.refreshToken,
-                            expiresIn = tokens.expiresIn
+                        AuthResponse(
+                            user = UserResponse(
+                                id = authResult.user.id.toHexString(),
+                                email = authResult.user.email,
+                                username = authResult.user.username,
+                                createdAt = authResult.user.createdAt
+                            ),
+                            accessToken = authResult.tokens.accessToken,
+                            refreshToken = authResult.tokens.refreshToken
                         )
                     )
                 },
@@ -45,12 +52,17 @@ fun Route.authRoutes(authService: AuthService) {
             val result = authService.login(request.email, request.password)
 
             result.fold(
-                onSuccess = { tokens ->
+                onSuccess = { authResult ->
                     call.respond(
-                        TokenResponse(
-                            accessToken = tokens.accessToken,
-                            refreshToken = tokens.refreshToken,
-                            expiresIn = tokens.expiresIn
+                        AuthResponse(
+                            user = UserResponse(
+                                id = authResult.user.id.toHexString(),
+                                email = authResult.user.email,
+                                username = authResult.user.username,
+                                createdAt = authResult.user.createdAt
+                            ),
+                            accessToken = authResult.tokens.accessToken,
+                            refreshToken = authResult.tokens.refreshToken
                         )
                     )
                 },

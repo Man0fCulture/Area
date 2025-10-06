@@ -21,7 +21,12 @@ class AuthService(
         val refreshToken: String
     )
 
-    suspend fun register(email: String, password: String, username: String): Result<TokenPair> {
+    data class AuthResult(
+        val user: User,
+        val tokens: TokenPair
+    )
+
+    suspend fun register(email: String, password: String, username: String): Result<AuthResult> {
         if (userRepository.existsByEmail(email)) {
             return Result.failure(Exception("Email already exists"))
         }
@@ -33,12 +38,12 @@ class AuthService(
         )
 
         val createdUser = userRepository.create(user)
-        val tokens = jwtService.generateTokenPair(createdUser.id, createdUser.email)
+        val tokens = jwtService.generateTokenPair(createdUser.id, createdUser.email, createdUser.username)
 
-        return Result.success(tokens)
+        return Result.success(AuthResult(createdUser, tokens))
     }
 
-    suspend fun login(email: String, password: String): Result<TokenPair> {
+    suspend fun login(email: String, password: String): Result<AuthResult> {
         val user = userRepository.findByEmail(email)
             ?: return Result.failure(Exception("Invalid credentials"))
 
@@ -46,8 +51,8 @@ class AuthService(
             return Result.failure(Exception("Invalid credentials"))
         }
 
-        val tokens = jwtService.generateTokenPair(user.id, user.email)
-        return Result.success(tokens)
+        val tokens = jwtService.generateTokenPair(user.id, user.email, user.username)
+        return Result.success(AuthResult(user, tokens))
     }
 
     suspend fun loginOrCreateWithOAuth(
@@ -105,7 +110,7 @@ class AuthService(
         }
 
         // Generate JWT tokens
-        val tokens = jwtService.generateTokenPair(user.id, user.email)
+        val tokens = jwtService.generateTokenPair(user.id, user.email, user.username)
 
         return OAuthLoginResult(
             user = user,
@@ -227,7 +232,7 @@ class AuthService(
         val user = userRepository.findById(ObjectId(payload.userId))
             ?: return Result.failure(Exception("User not found"))
 
-        val tokens = jwtService.generateTokenPair(user.id, user.email)
+        val tokens = jwtService.generateTokenPair(user.id, user.email, user.username)
         return Result.success(tokens)
     }
 }
