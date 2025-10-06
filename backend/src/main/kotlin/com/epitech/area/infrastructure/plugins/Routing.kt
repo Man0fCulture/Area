@@ -2,6 +2,7 @@ package com.epitech.area.infrastructure.plugins
 
 import com.epitech.area.api.controllers.areasRoutes
 import com.epitech.area.api.controllers.authRoutes
+import com.epitech.area.api.controllers.oAuth2Routes
 import com.epitech.area.api.controllers.servicesRoutes
 import com.epitech.area.api.controllers.webhooksRoutes
 import com.epitech.area.infrastructure.DependencyContainer
@@ -90,6 +91,7 @@ fun Application.configureRouting() {
 
         route("/api") {
             authRoutes(container.authService)
+            oAuth2Routes(container.oAuth2Controller)
             servicesRoutes(container.serviceRepository)
             areasRoutes(container.areaService)
             webhooksRoutes(

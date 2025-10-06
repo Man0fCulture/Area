@@ -1,8 +1,10 @@
 package com.epitech.area.infrastructure
 
+import com.epitech.area.api.controllers.OAuth2Controller
 import com.epitech.area.application.services.AuthService
 import com.epitech.area.domain.repositories.*
 import com.epitech.area.infrastructure.messaging.rabbitmq.*
+import com.epitech.area.infrastructure.oauth.OAuth2Service
 import com.epitech.area.infrastructure.persistence.mongodb.MongoDBConnection
 import com.epitech.area.infrastructure.persistence.mongodb.*
 import com.epitech.area.infrastructure.persistence.redis.CacheService
@@ -13,7 +15,12 @@ import com.epitech.area.infrastructure.integrations.ServiceAdapter
 import com.epitech.area.infrastructure.integrations.services.productivity.TimerServiceAdapter
 import com.epitech.area.infrastructure.integrations.services.webhook.WebhookServiceAdapter
 import com.epitech.area.infrastructure.integrations.services.email.GmailServiceAdapter
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
+import kotlinx.serialization.json.Json
 
 class DependencyContainer(private val application: Application) {
     val config = application.environment.config
@@ -74,8 +81,28 @@ class DependencyContainer(private val application: Application) {
         MongoAreaExecutionRepository(mongoConnection.database)
     }
 
+    val httpClient: HttpClient by lazy {
+        HttpClient(CIO) {
+            install(ContentNegotiation) {
+                json(Json {
+                    prettyPrint = true
+                    isLenient = true
+                    ignoreUnknownKeys = true
+                })
+            }
+        }
+    }
+
+    val oAuth2Service: OAuth2Service by lazy {
+        OAuth2Service(config, httpClient)
+    }
+
     val authService: AuthService by lazy {
         AuthService(userRepository, jwtService)
+    }
+
+    val oAuth2Controller: OAuth2Controller by lazy {
+        OAuth2Controller(oAuth2Service, authService, config)
     }
 
     val serviceAdapters: Map<String, ServiceAdapter> by lazy {
