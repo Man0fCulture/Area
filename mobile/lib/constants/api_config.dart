@@ -1,13 +1,12 @@
 import 'dart:io';
 
 class ApiConfig {
-  static const String _serverHost = 'localhost';
   static const String _serverHost = '192.168.1.28';
   static const String _serverPort = '8080';
 
   static String get baseUrl {
     if (Platform.isAndroid) {
-      return 'http://10.0.2.2:$_serverPort';
+      return 'http://$_serverHost:$_serverPort';
     } else {
       return 'http://$_serverHost:$_serverPort';
     }
