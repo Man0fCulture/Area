@@ -1,5 +1,20 @@
+import 'dart:io';
+
 class ApiConfig {
-  static const String baseUrl = 'http://localhost:8080';
+  // Change this to your server IP for physical devices
+  static const String _serverHost = 'localhost';
+  static const String _serverPort = '8080';
+
+  // Auto-detect based on platform
+  static String get baseUrl {
+    if (Platform.isAndroid) {
+      // Android emulator uses 10.0.2.2 to access host machine
+      return 'http://10.0.2.2:$_serverPort';
+    } else {
+      // iOS emulator and physical devices
+      return 'http://$_serverHost:$_serverPort';
+    }
+  }
 
   // Auth endpoints
   static const String loginEndpoint = '/api/auth/login';

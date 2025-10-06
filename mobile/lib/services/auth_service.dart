@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../constants/api_config.dart';
 import '../models/token_response.dart';
 import '../models/api_error.dart';
@@ -11,6 +12,9 @@ class AuthService {
   AuthService._internal();
 
   final ApiService _apiService = ApiService();
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['email', 'profile'],
+  );
   static const String _accessTokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
 
@@ -117,5 +121,40 @@ class AuthService {
 
   Future<void> logout() async {
     await clearTokens();
+    await _googleSignIn.signOut();
+  }
+
+  Future<Map<String, dynamic>> loginWithGoogle() async {
+    try {
+      final GoogleSignInAccount? account = await _googleSignIn.signIn();
+
+      if (account == null) {
+        return {'success': false, 'error': 'Connexion annulée'};
+      }
+
+      final GoogleSignInAuthentication auth = await account.authentication;
+
+      // Send the Google ID token to your backend
+      // For now, we'll use a placeholder endpoint - you'll need to implement this on your server
+      final response = await _apiService.post(
+        '${ApiConfig.loginEndpoint}/google',
+        {
+          'idToken': auth.idToken,
+          'email': account.email,
+          'displayName': account.displayName,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final tokenResponse = TokenResponse.fromJson(jsonDecode(response.body));
+        await saveTokens(tokenResponse);
+        return {'success': true, 'data': tokenResponse};
+      } else {
+        final error = ApiError.fromJson(jsonDecode(response.body));
+        return {'success': false, 'error': error.message};
+      }
+    } catch (e) {
+      return {'success': false, 'error': 'Erreur OAuth: ${e.toString()}'};
+    }
   }
 }

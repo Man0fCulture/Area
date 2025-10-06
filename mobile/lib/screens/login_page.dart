@@ -60,6 +60,36 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  void _loginWithGoogle() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final result = await _authService.loginWithGoogle();
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (result['success']) {
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['error'] ?? 'Erreur de connexion Google'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,6 +194,37 @@ class _LoginPageState extends State<LoginPage> {
                             'Se connecter',
                             style: TextStyle(fontSize: 16),
                           ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(child: Divider(color: Colors.grey[400])),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          'OU',
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                      ),
+                      Expanded(child: Divider(color: Colors.grey[400])),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  OutlinedButton.icon(
+                    onPressed: _isLoading ? null : _loginWithGoogle,
+                    icon: Image.network(
+                      'https://www.google.com/favicon.ico',
+                      height: 20,
+                      width: 20,
+                    ),
+                    label: const Text(
+                      'Se connecter avec Google',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      side: BorderSide(color: Colors.grey[400]!),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Row(
