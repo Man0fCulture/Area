@@ -8,6 +8,7 @@ import com.google.api.services.gmail.Gmail
 import com.google.api.services.gmail.model.Message
 import com.google.api.client.auth.oauth2.Credential
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
+import org.bson.Document
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream
 import java.util.*
@@ -61,13 +62,13 @@ class GmailServiceAdapter : ServiceAdapter {
 
             ActionResult(
                 success = true,
-                data = mapOf(
-                    "message_id" to messageId,
-                    "from" to from,
-                    "subject" to subject,
-                    "snippet" to (message.snippet ?: ""),
-                    "triggered_at" to System.currentTimeMillis()
-                )
+                data = Document().apply {
+                    append("message_id", messageId)
+                    append("from", from)
+                    append("subject", subject)
+                    append("snippet", message.snippet ?: "")
+                    append("triggered_at", System.currentTimeMillis())
+                }
             )
         } catch (e: Exception) {
             logger.error("Failed to check new email", e)
@@ -103,13 +104,13 @@ class GmailServiceAdapter : ServiceAdapter {
 
             ActionResult(
                 success = true,
-                data = mapOf(
-                    "message_id" to messageId,
-                    "from" to from,
-                    "subject" to subject,
-                    "snippet" to (message.snippet ?: ""),
-                    "triggered_at" to System.currentTimeMillis()
-                )
+                data = Document().apply {
+                    append("message_id", messageId)
+                    append("from", from)
+                    append("subject", subject)
+                    append("snippet", message.snippet ?: "")
+                    append("triggered_at", System.currentTimeMillis())
+                }
             )
         } catch (e: Exception) {
             logger.error("Failed to check email with subject", e)
@@ -120,7 +121,7 @@ class GmailServiceAdapter : ServiceAdapter {
     override suspend fun executeReaction(
         reactionId: String,
         config: Map<String, Any>,
-        actionData: Map<String, Any>,
+        actionData: Document,
         userService: UserService?
     ): ReactionResult {
         if (userService == null) {
@@ -167,7 +168,7 @@ class GmailServiceAdapter : ServiceAdapter {
 
     private suspend fun replyToEmail(
         config: Map<String, Any>,
-        actionData: Map<String, Any>,
+        actionData: Document,
         userService: UserService
     ): ReactionResult {
         val body = config["body"] as? String ?: return ReactionResult(

@@ -3,6 +3,7 @@ package com.epitech.area.infrastructure.integrations.services.productivity
 import com.epitech.area.domain.entities.UserService
 import com.epitech.area.infrastructure.integrations.*
 import kotlinx.coroutines.delay
+import org.bson.Document
 
 class TimerServiceAdapter : ServiceAdapter {
     override val serviceId = "timer"
@@ -28,11 +29,11 @@ class TimerServiceAdapter : ServiceAdapter {
 
         return ActionResult(
             success = true,
-            data = mapOf(
-                "triggered_at" to System.currentTimeMillis(),
-                "interval" to interval,
-                "message" to "Timer triggered after $interval seconds"
-            )
+            data = Document().apply {
+                append("triggered_at", System.currentTimeMillis())
+                append("interval", interval)
+                append("message", "Timer triggered after $interval seconds")
+            }
         )
     }
 
@@ -44,18 +45,18 @@ class TimerServiceAdapter : ServiceAdapter {
 
         return ActionResult(
             success = true,
-            data = mapOf(
-                "triggered_at" to System.currentTimeMillis(),
-                "scheduled_time" to time,
-                "message" to "Timer triggered at $time"
-            )
+            data = Document().apply {
+                append("triggered_at", System.currentTimeMillis())
+                append("scheduled_time", time)
+                append("message", "Timer triggered at $time")
+            }
         )
     }
 
     override suspend fun executeReaction(
         reactionId: String,
         config: Map<String, Any>,
-        actionData: Map<String, Any>,
+        actionData: Document,
         userService: UserService?
     ): ReactionResult {
         return when (reactionId) {

@@ -7,6 +7,7 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import org.bson.Document
 
 class WebhookServiceAdapter : ServiceAdapter {
     override val serviceId = "webhook"
@@ -32,17 +33,17 @@ class WebhookServiceAdapter : ServiceAdapter {
     private suspend fun executeWebhookTriggered(config: Map<String, Any>): ActionResult {
         return ActionResult(
             success = true,
-            data = config + mapOf(
-                "triggered_at" to System.currentTimeMillis(),
-                "webhook_id" to (config["webhook_id"] ?: "unknown")
-            )
+            data = Document(config).apply {
+                append("triggered_at", System.currentTimeMillis())
+                append("webhook_id", config["webhook_id"] ?: "unknown")
+            }
         )
     }
 
     override suspend fun executeReaction(
         reactionId: String,
         config: Map<String, Any>,
-        actionData: Map<String, Any>,
+        actionData: Document,
         userService: UserService?
     ): ReactionResult {
         return when (reactionId) {
@@ -53,7 +54,7 @@ class WebhookServiceAdapter : ServiceAdapter {
 
     private suspend fun executeCallWebhook(
         config: Map<String, Any>,
-        actionData: Map<String, Any>
+        actionData: Document
     ): ReactionResult {
         val url = config["url"] as? String ?: return ReactionResult(
             false,

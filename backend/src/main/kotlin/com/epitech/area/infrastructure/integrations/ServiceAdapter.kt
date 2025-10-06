@@ -1,6 +1,7 @@
 package com.epitech.area.infrastructure.integrations
 
 import com.epitech.area.domain.entities.UserService
+import org.bson.Document
 
 interface ServiceAdapter {
     val serviceId: String
@@ -15,7 +16,7 @@ interface ServiceAdapter {
     suspend fun executeReaction(
         reactionId: String,
         config: Map<String, Any>,
-        actionData: Map<String, Any>,
+        actionData: Document,
         userService: UserService?
     ): ReactionResult
 
@@ -25,7 +26,7 @@ interface ServiceAdapter {
 
 data class ActionResult(
     val success: Boolean,
-    val data: Map<String, Any> = emptyMap(),
+    val data: Document = Document(),
     val error: String? = null
 )
 

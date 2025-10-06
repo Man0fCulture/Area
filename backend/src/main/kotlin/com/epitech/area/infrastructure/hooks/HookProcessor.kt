@@ -3,6 +3,7 @@ package com.epitech.area.infrastructure.hooks
 import com.epitech.area.domain.entities.*
 import com.epitech.area.domain.repositories.*
 import com.epitech.area.infrastructure.integrations.ServiceAdapter
+import org.bson.Document
 import org.slf4j.LoggerFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -118,7 +119,7 @@ class HookProcessor(
 
     private suspend fun executeReaction(
         reaction: ReactionConfig,
-        actionData: Map<String, Any>,
+        actionData: Document,
         userId: org.bson.types.ObjectId
     ): ReactionExecutionResult {
         val service = serviceRepository.findById(reaction.serviceId)
@@ -156,7 +157,7 @@ class HookProcessor(
     private suspend fun updateExecutionStatus(
         executionId: org.bson.types.ObjectId,
         status: ExecutionStatus,
-        actionData: Map<String, Any>? = null,
+        actionData: Document? = null,
         error: String? = null
     ) {
         val execution = areaExecutionRepository.findById(executionId) ?: return
@@ -215,7 +216,7 @@ data class ProcessResult(
 
 data class ActionExecutionResult(
     val success: Boolean,
-    val data: Map<String, Any> = emptyMap(),
+    val data: Document = Document(),
     val error: String? = null
 )
 
