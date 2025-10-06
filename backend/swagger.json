@@ -25,6 +25,10 @@
       "description": "User authentication and registration"
     },
     {
+      "name": "OAuth2",
+      "description": "OAuth2 authentication with Google, GitHub, Facebook"
+    },
+    {
       "name": "Services",
       "description": "Available services (Timer, Webhook, Gmail)"
     },
@@ -206,6 +210,236 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/auth/oauth/init": {
+      "post": {
+        "tags": ["OAuth2"],
+        "summary": "Initialize OAuth2 flow",
+        "description": "Get the authorization URL for OAuth2 authentication",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OAuth2InitRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authorization URL generated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuth2AuthUrlResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid provider or configuration"
+          }
+        }
+      }
+    },
+    "/api/auth/oauth/providers": {
+      "get": {
+        "tags": ["OAuth2"],
+        "summary": "Get available OAuth2 providers",
+        "description": "Returns list of configured OAuth2 providers",
+        "responses": {
+          "200": {
+            "description": "List of providers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuth2ProvidersResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/oauth/{provider}/callback": {
+      "get": {
+        "tags": ["OAuth2"],
+        "summary": "OAuth2 callback",
+        "description": "Callback URL for OAuth2 providers (web flow)",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["google", "github", "facebook"]
+            }
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Authorization code"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "State parameter for CSRF protection"
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirect to frontend with tokens"
+          },
+          "400": {
+            "description": "Invalid code or provider"
+          }
+        }
+      }
+    },
+    "/api/auth/oauth/{provider}/token": {
+      "post": {
+        "tags": ["OAuth2"],
+        "summary": "Exchange code for tokens",
+        "description": "Exchange authorization code for JWT tokens (mobile flow)",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["google", "github", "facebook"]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OAuth2TokenExchangeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tokens generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuth2TokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid code or provider"
+          }
+        }
+      }
+    },
+    "/api/auth/oauth/link": {
+      "post": {
+        "tags": ["OAuth2"],
+        "summary": "Link OAuth2 account",
+        "description": "Link an OAuth2 provider to existing user account",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OAuth2LinkAccountRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Account linked successfully"
+          },
+          "400": {
+            "description": "Provider already linked or invalid"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/auth/oauth/unlink": {
+      "delete": {
+        "tags": ["OAuth2"],
+        "summary": "Unlink OAuth2 account",
+        "description": "Unlink an OAuth2 provider from user account",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OAuth2UnlinkAccountRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Account unlinked successfully"
+          },
+          "400": {
+            "description": "Cannot unlink last authentication method"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/auth/oauth/linked-accounts": {
+      "get": {
+        "tags": ["OAuth2"],
+        "summary": "Get linked OAuth2 accounts",
+        "description": "Get list of OAuth2 accounts linked to user",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of linked accounts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuth2LinkedAccountsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         }
       }
@@ -1168,6 +1402,171 @@
             "type": "integer",
             "description": "Unix timestamp in milliseconds",
             "example": 1704067205000
+          }
+        }
+      },
+      "OAuth2InitRequest": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": ["google", "github", "facebook"],
+            "example": "google"
+          },
+          "redirectUri": {
+            "type": "string",
+            "description": "Optional redirect URI (uses default if not provided)",
+            "example": "http://localhost:3000/auth/callback"
+          },
+          "state": {
+            "type": "string",
+            "description": "Optional state parameter for CSRF protection"
+          }
+        },
+        "required": ["provider"]
+      },
+      "OAuth2AuthUrlResponse": {
+        "type": "object",
+        "properties": {
+          "authUrl": {
+            "type": "string",
+            "description": "OAuth2 authorization URL",
+            "example": "https://accounts.google.com/o/oauth2/v2/auth?client_id=..."
+          },
+          "state": {
+            "type": "string",
+            "description": "State parameter for CSRF protection"
+          }
+        }
+      },
+      "OAuth2TokenExchangeRequest": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Authorization code from OAuth provider"
+          },
+          "redirectUri": {
+            "type": "string",
+            "description": "Redirect URI used in authorization request"
+          },
+          "state": {
+            "type": "string",
+            "description": "State parameter for CSRF protection"
+          }
+        },
+        "required": ["code", "redirectUri"]
+      },
+      "OAuth2TokenResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "JWT access token"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "JWT refresh token"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "description": "Token expiration time in milliseconds",
+            "example": 900000
+          },
+          "tokenType": {
+            "type": "string",
+            "example": "Bearer"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          }
+        }
+      },
+      "OAuth2ProvidersResponse": {
+        "type": "object",
+        "properties": {
+          "providers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OAuth2ProviderInfo"
+            }
+          }
+        }
+      },
+      "OAuth2ProviderInfo": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "google"
+          },
+          "displayName": {
+            "type": "string",
+            "example": "Google"
+          },
+          "enabled": {
+            "type": "boolean",
+            "example": true
+          },
+          "iconUrl": {
+            "type": "string",
+            "example": "https://www.google.com/favicon.ico"
+          }
+        }
+      },
+      "OAuth2LinkAccountRequest": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": ["google", "github", "facebook"]
+          },
+          "accessToken": {
+            "type": "string",
+            "description": "OAuth access token from provider"
+          }
+        },
+        "required": ["provider", "accessToken"]
+      },
+      "OAuth2UnlinkAccountRequest": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": ["google", "github", "facebook"]
+          }
+        },
+        "required": ["provider"]
+      },
+      "OAuth2LinkedAccountsResponse": {
+        "type": "object",
+        "properties": {
+          "accounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OAuth2LinkedAccount"
+            }
+          }
+        }
+      },
+      "OAuth2LinkedAccount": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "example": "google"
+          },
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "linkedAt": {
+            "type": "string",
+            "description": "Timestamp when account was linked"
+          },
+          "displayName": {
+            "type": "string",
+            "example": "Google"
           }
         }
       }
