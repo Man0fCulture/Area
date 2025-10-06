@@ -15,8 +15,8 @@ class TokenResponse {
     return TokenResponse(
       accessToken: json['accessToken'] as String,
       refreshToken: json['refreshToken'] as String,
-      expiresIn: json['expiresIn'] as int,
-      tokenType: json['tokenType'] as String,
+      expiresIn: (json['expiresIn'] as num).toInt(),
+      tokenType: json['tokenType'] as String? ?? 'Bearer',
     );
   }
 

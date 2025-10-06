@@ -22,14 +22,15 @@ class Service {
   });
 
   factory Service.fromJson(Map<String, dynamic> json) {
+    final name = json['name'] as String? ?? '';
     return Service(
-      id: json['id'],
-      name: json['name'],
-      displayName: json['displayName'],
-      description: json['description'],
-      category: json['category'],
-      requiresAuth: json['requiresAuth'] ?? false,
-      enabled: json['enabled'] ?? true,
+      id: json['id'] as String? ?? '',
+      name: name,
+      displayName: json['displayName'] as String? ?? name,
+      description: json['description'] as String? ?? '',
+      category: json['category'] as String? ?? '',
+      requiresAuth: json['requiresAuth'] as bool? ?? false,
+      enabled: json['enabled'] as bool? ?? true,
       actions: (json['actions'] as List? ?? [])
           .map((a) => ActionItem.fromJson(a))
           .toList(),
@@ -69,9 +70,9 @@ class ActionItem {
 
   factory ActionItem.fromJson(Map<String, dynamic> json) {
     return ActionItem(
-      id: json['id'],
-      name: json['name'],
-      description: json['description'],
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      description: json['description'] as String? ?? '',
       parameters: (json['parameters'] as List? ?? [])
           .map((p) => Parameter.fromJson(p))
           .toList(),
@@ -103,9 +104,9 @@ class ReactionItem {
 
   factory ReactionItem.fromJson(Map<String, dynamic> json) {
     return ReactionItem(
-      id: json['id'],
-      name: json['name'],
-      description: json['description'],
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      description: json['description'] as String? ?? '',
       parameters: (json['parameters'] as List? ?? [])
           .map((p) => Parameter.fromJson(p))
           .toList(),
@@ -137,10 +138,10 @@ class Parameter {
 
   factory Parameter.fromJson(Map<String, dynamic> json) {
     return Parameter(
-      name: json['name'],
-      type: json['type'],
-      required: json['required'] ?? false,
-      description: json['description'],
+      name: json['name'] as String? ?? '',
+      type: json['type'] as String? ?? '',
+      required: json['required'] as bool? ?? false,
+      description: json['description'] as String? ?? '',
     );
   }
 
