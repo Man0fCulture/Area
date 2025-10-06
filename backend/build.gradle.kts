@@ -3,6 +3,7 @@ plugins {
     kotlin("plugin.serialization") version "1.9.22"
     application
     id("io.ktor.plugin") version "2.3.7"
+    id("co.uzzu.dotenv.gradle") version "4.0.0"
 }
 
 group = "com.epitech.area"
@@ -88,4 +89,19 @@ tasks.test {
 
 kotlin {
     jvmToolchain(17)
+}
+
+// Configure run task to load .env file
+tasks.named<JavaExec>("run") {
+    // Load environment variables from .env file
+    if (file(".env").exists()) {
+        val envFile = file(".env")
+        envFile.readLines().forEach { line ->
+            val trimmedLine = line.trim()
+            if (trimmedLine.isNotEmpty() && !trimmedLine.startsWith("#") && trimmedLine.contains("=")) {
+                val (key, value) = trimmedLine.split("=", limit = 2)
+                environment[key.trim()] = value.trim()
+            }
+        }
+    }
 }
