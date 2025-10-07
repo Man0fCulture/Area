@@ -134,8 +134,6 @@ class AuthService {
 
       final GoogleSignInAuthentication auth = await account.authentication;
 
-      // Send the Google ID token to your backend
-      // For now, we'll use a placeholder endpoint - you'll need to implement this on your server
       final response = await _apiService.post(
         '${ApiConfig.loginEndpoint}/google',
         {
