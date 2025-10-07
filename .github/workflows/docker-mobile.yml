@@ -1,0 +1,53 @@
+name: Build Flutter APK
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build APK - Docker Compose
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify Docker setup
+        run: |
+          docker --version
+          docker compose version
+
+      - name: Move to docker directory
+        working-directory: ./docker
+        run: |
+          echo "📂 Current directory:"
+          pwd
+          ls -l
+
+      - name: Build Docker image
+        working-directory: ./docker
+        run: |
+          echo "🛠️ Building Docker image..."
+          docker compose build
+
+      - name: Run Docker Compose
+        working-directory: ./docker
+        run: |
+          echo "🚀 Starting build with Docker Compose..."
+          docker compose up --abort-on-container-exit --build
+
+      - name: Check generated APK
+        run: |
+          echo "🔍 Verifying if APK was created..."
+          APK_PATH="mobile_apk/Area.apk"
+          if [ ! -f "$APK_PATH" ]; then
+            echo "❌ APK not found at $APK_PATH"
+            echo "📂 Listing output directories for debugging:"
+            ls -R docker || true
+            exit 1
+          fi
+          echo "✅ APK found successfully at $APK_PATH"
