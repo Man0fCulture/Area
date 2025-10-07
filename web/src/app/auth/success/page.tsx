@@ -39,7 +39,7 @@ function OAuthSuccessContent() {
   }, [searchParams, router, setUserFromToken]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FF6B35] via-[#FFB627] to-[#FF6B35] flex items-center justify-center">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <Loading size="lg" text="Authentification en cours..." />
     </div>
   );
@@ -48,7 +48,7 @@ function OAuthSuccessContent() {
 export default function OAuthSuccessPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-[#FF6B35] via-[#FFB627] to-[#FF6B35] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Loading size="lg" text="Authentification en cours..." />
       </div>
     }>

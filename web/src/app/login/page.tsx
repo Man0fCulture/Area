@@ -60,10 +60,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FF6B35] via-[#FFB627] to-[#FF6B35] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#FF6B35] to-[#FFB627] rounded-2xl mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#3B82F6] to-[#60A5FA] rounded-2xl mb-4">
             <LogIn className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-[#2C3E50] mb-2">Connexion</h1>
@@ -92,7 +92,7 @@ export default function LoginPage() {
               <input type="checkbox" className="rounded border-gray-300" />
               <span className="text-[#2C3E50]">Se souvenir de moi</span>
             </label>
-            <Link href="/forgot-password" className="text-[#FF6B35] hover:underline">
+            <Link href="/forgot-password" className="text-[#3B82F6] hover:underline">
               Mot de passe oublié ?
             </Link>
           </div>
@@ -143,7 +143,7 @@ export default function LoginPage() {
 
         <p className="text-center text-sm text-[#95A5A6] mt-6">
           Pas encore de compte ?{' '}
-          <Link href="/register" className="text-[#FF6B35] hover:underline font-medium">
+          <Link href="/register" className="text-[#3B82F6] hover:underline font-medium">
             S&apos;inscrire
           </Link>
         </p>
