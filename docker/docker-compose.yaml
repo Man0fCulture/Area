@@ -1,0 +1,17 @@
+services:
+
+  client_mobile:
+    build:
+      context: ./../mobile
+      dockerfile: mobile.dockerfile
+    container_name: area-mobile
+    volumes:
+      - ./../mobile:/app:rw
+      - ./../mobile_apk:/shared:rw
+      - gradle-cache:/root/.gradle
+      - flutter-cache:/opt/flutter/.pub-cache
+    command: ["bash", "-lc", "flutter pub get && flutter build apk --release && cp build/app/outputs/flutter-apk/app-release.apk /shared/Area.apk"]
+
+volumes:
+  gradle-cache:
+  flutter-cache:
