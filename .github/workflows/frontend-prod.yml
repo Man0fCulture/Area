@@ -15,7 +15,7 @@ permissions:
   actions: write
 
 env:
-  DEPLOY_PATH: /home/ubuntu/cognify-frontend
+  DEPLOY_PATH: /home/ubuntu/area-frontend
 
 jobs:
   build:
@@ -111,7 +111,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: app-workspace
-          path: ./workspace
+          path: ./web
 
       - name: Start SSH agent
         uses: webfactory/ssh-agent@v0.9.0
