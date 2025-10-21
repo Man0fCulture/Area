@@ -31,9 +31,12 @@ fun Application.module() {
 
     runBlocking {
         try {
-            val serviceInitializer = ServiceInitializer(container.serviceRepository)
+            val serviceInitializer = ServiceInitializer(
+                container.serviceRepository,
+                container.serviceRegistry
+            )
             serviceInitializer.initializeServices()
-            logger.info("Services initialized successfully")
+            logger.info("✓ Services initialized successfully")
         } catch (e: Exception) {
             logger.error("Failed to initialize services", e)
         }
@@ -86,7 +89,7 @@ private fun Application.initializeConnections() {
     try {
         val redisHost = environment.config.property("database.redis.host").getString()
         val redisPort = environment.config.property("database.redis.port").getString().toInt()
-        val redisPassword = environment.config.propertyOrNull("database.redis.password")?.getString()
+        val redisPassword = environment.config.propertyOrNull("database.redis.password")?.getString()?.takeIf { it.isNotBlank() }
         val redisConnection = RedisConnection.getInstance(redisHost, redisPort, redisPassword)
         redisConnection.connect()
     } catch (e: Exception) {

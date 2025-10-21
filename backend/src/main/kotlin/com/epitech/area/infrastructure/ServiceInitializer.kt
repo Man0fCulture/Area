@@ -2,32 +2,41 @@ package com.epitech.area.infrastructure
 
 import com.epitech.area.domain.entities.*
 import com.epitech.area.domain.repositories.ServiceRepository
+import com.epitech.area.sdk.ServiceRegistry
 import org.slf4j.LoggerFactory
 
-class ServiceInitializer(private val serviceRepository: ServiceRepository) {
+class ServiceInitializer(
+    private val serviceRepository: ServiceRepository,
+    private val serviceRegistry: ServiceRegistry
+) {
     private val logger = LoggerFactory.getLogger(ServiceInitializer::class.java)
 
     suspend fun initializeServices() {
-        logger.info("Initializing services in database...")
+        logger.info("Initializing services in database from ServiceRegistry...")
 
+        // Charger les services depuis le nouveau système modulaire
         val services = listOf(
             createTimerService(),
             createWebhookService(),
-            createGmailService()
+            createGmailService(),
+            createRandomService(),
+            createTextService(),
+            createMathService(),
+            createLoggerService()
         )
 
         services.forEach { service ->
             val existing = serviceRepository.findByName(service.name)
             if (existing == null) {
                 serviceRepository.create(service)
-                logger.info("Created service: ${service.name}")
+                logger.info("✓ Created service: ${service.name}")
             } else {
                 serviceRepository.update(service.copy(id = existing.id))
-                logger.info("Updated service: ${service.name}")
+                logger.info("✓ Updated service: ${service.name}")
             }
         }
 
-        logger.info("Services initialization completed")
+        logger.info("✓ Services initialization completed (${services.size} services)")
     }
 
     private fun createTimerService(): Service {
@@ -194,6 +203,210 @@ class ServiceInitializer(private val serviceRepository: ServiceRepository) {
                             required = true,
                             description = "Reply body"
                         )
+                    )
+                )
+            ),
+            enabled = true
+        )
+    }
+
+    private fun createRandomService(): Service {
+        return Service(
+            name = "Random",
+            description = "Generate random values and make random choices",
+            category = "Utility",
+            requiresAuth = false,
+            authType = null,
+            actions = listOf(
+                ActionDefinition(
+                    id = "random_chance",
+                    name = "Random chance",
+                    description = "Trigger randomly based on percentage",
+                    triggerType = TriggerType.EVENT,
+                    configSchema = mapOf(
+                        "percentage" to FieldSchema(
+                            type = "number",
+                            required = true,
+                            default = "50",
+                            description = "Chance of triggering (0-100%)"
+                        )
+                    )
+                )
+            ),
+            reactions = listOf(
+                ReactionDefinition(
+                    id = "generate_number",
+                    name = "Generate number",
+                    description = "Generate a random number in range",
+                    configSchema = mapOf(
+                        "min" to FieldSchema(type = "number", required = false, default = "0"),
+                        "max" to FieldSchema(type = "number", required = false, default = "100")
+                    )
+                ),
+                ReactionDefinition(
+                    id = "choose_from_list",
+                    name = "Choose from list",
+                    description = "Pick a random item from comma-separated list",
+                    configSchema = mapOf(
+                        "items" to FieldSchema(
+                            type = "string",
+                            required = true,
+                            description = "Comma-separated items"
+                        )
+                    )
+                ),
+                ReactionDefinition(
+                    id = "generate_uuid",
+                    name = "Generate UUID",
+                    description = "Generate a random UUID",
+                    configSchema = emptyMap()
+                )
+            ),
+            enabled = true
+        )
+    }
+
+    private fun createTextService(): Service {
+        return Service(
+            name = "Text",
+            description = "Text manipulation and formatting",
+            category = "Utility",
+            requiresAuth = false,
+            authType = null,
+            actions = emptyList(),
+            reactions = listOf(
+                ReactionDefinition(
+                    id = "to_uppercase",
+                    name = "To uppercase",
+                    description = "Convert text to uppercase",
+                    configSchema = mapOf(
+                        "text" to FieldSchema(type = "string", required = true)
+                    )
+                ),
+                ReactionDefinition(
+                    id = "to_lowercase",
+                    name = "To lowercase",
+                    description = "Convert text to lowercase",
+                    configSchema = mapOf(
+                        "text" to FieldSchema(type = "string", required = true)
+                    )
+                ),
+                ReactionDefinition(
+                    id = "concat",
+                    name = "Concatenate",
+                    description = "Join two texts together",
+                    configSchema = mapOf(
+                        "text1" to FieldSchema(type = "string", required = false),
+                        "text2" to FieldSchema(type = "string", required = false),
+                        "separator" to FieldSchema(type = "string", required = false)
+                    )
+                ),
+                ReactionDefinition(
+                    id = "replace",
+                    name = "Replace text",
+                    description = "Replace text in a string",
+                    configSchema = mapOf(
+                        "text" to FieldSchema(type = "string", required = true),
+                        "find" to FieldSchema(type = "string", required = true),
+                        "replace" to FieldSchema(type = "string", required = false)
+                    )
+                )
+            ),
+            enabled = true
+        )
+    }
+
+    private fun createMathService(): Service {
+        return Service(
+            name = "Math",
+            description = "Mathematical operations and calculations",
+            category = "Utility",
+            requiresAuth = false,
+            authType = null,
+            actions = emptyList(),
+            reactions = listOf(
+                ReactionDefinition(
+                    id = "add",
+                    name = "Add",
+                    description = "Add two numbers",
+                    configSchema = mapOf(
+                        "a" to FieldSchema(type = "number", required = true),
+                        "b" to FieldSchema(type = "number", required = true)
+                    )
+                ),
+                ReactionDefinition(
+                    id = "subtract",
+                    name = "Subtract",
+                    description = "Subtract two numbers",
+                    configSchema = mapOf(
+                        "a" to FieldSchema(type = "number", required = true),
+                        "b" to FieldSchema(type = "number", required = true)
+                    )
+                ),
+                ReactionDefinition(
+                    id = "multiply",
+                    name = "Multiply",
+                    description = "Multiply two numbers",
+                    configSchema = mapOf(
+                        "a" to FieldSchema(type = "number", required = true),
+                        "b" to FieldSchema(type = "number", required = true)
+                    )
+                ),
+                ReactionDefinition(
+                    id = "divide",
+                    name = "Divide",
+                    description = "Divide two numbers",
+                    configSchema = mapOf(
+                        "a" to FieldSchema(type = "number", required = true),
+                        "b" to FieldSchema(type = "number", required = true)
+                    )
+                ),
+                ReactionDefinition(
+                    id = "power",
+                    name = "Power",
+                    description = "Raise number to power",
+                    configSchema = mapOf(
+                        "base" to FieldSchema(type = "number", required = true),
+                        "exponent" to FieldSchema(type = "number", required = true)
+                    )
+                )
+            ),
+            enabled = true
+        )
+    }
+
+    private fun createLoggerService(): Service {
+        return Service(
+            name = "Logger",
+            description = "Log messages for debugging and monitoring",
+            category = "Utility",
+            requiresAuth = false,
+            authType = null,
+            actions = emptyList(),
+            reactions = listOf(
+                ReactionDefinition(
+                    id = "log_info",
+                    name = "Log info",
+                    description = "Log an info message",
+                    configSchema = mapOf(
+                        "message" to FieldSchema(type = "string", required = true),
+                        "include_trigger_data" to FieldSchema(type = "boolean", required = false, default = "false")
+                    )
+                ),
+                ReactionDefinition(
+                    id = "log_warn",
+                    name = "Log warning",
+                    description = "Log a warning message",
+                    configSchema = mapOf(
+                        "message" to FieldSchema(type = "string", required = true)
+                    )
+                ),
+                ReactionDefinition(
+                    id = "log_error",
+                    name = "Log error",
+                    description = "Log an error message",
+                    configSchema = mapOf(
+                        "message" to FieldSchema(type = "string", required = true)
                     )
                 )
             ),

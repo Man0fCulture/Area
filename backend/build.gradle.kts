@@ -88,7 +88,7 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 // Configure run task to load .env file
@@ -99,8 +99,13 @@ tasks.named<JavaExec>("run") {
         envFile.readLines().forEach { line ->
             val trimmedLine = line.trim()
             if (trimmedLine.isNotEmpty() && !trimmedLine.startsWith("#") && trimmedLine.contains("=")) {
-                val (key, value) = trimmedLine.split("=", limit = 2)
-                environment[key.trim()] = value.trim()
+                val parts = trimmedLine.split("=", limit = 2)
+                val key = parts[0].trim()
+                val value = if (parts.size > 1) parts[1].trim() else ""
+                // Only set non-empty values
+                if (value.isNotEmpty()) {
+                    environment[key] = value
+                }
             }
         }
     }

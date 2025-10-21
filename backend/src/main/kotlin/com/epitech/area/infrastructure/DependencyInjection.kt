@@ -15,6 +15,15 @@ import com.epitech.area.infrastructure.integrations.ServiceAdapter
 import com.epitech.area.infrastructure.integrations.services.productivity.TimerServiceAdapter
 import com.epitech.area.infrastructure.integrations.services.webhook.WebhookServiceAdapter
 import com.epitech.area.infrastructure.integrations.services.email.GmailServiceAdapter
+import com.epitech.area.sdk.ServiceRegistry
+import com.epitech.area.sdk.ServiceAdapterBridge
+import com.epitech.area.integrations.timer.TimerService
+import com.epitech.area.integrations.webhook.WebhookService
+import com.epitech.area.integrations.gmail.GmailService
+import com.epitech.area.integrations.random.RandomService
+import com.epitech.area.integrations.text.TextService
+import com.epitech.area.integrations.math.MathService
+import com.epitech.area.integrations.logger.LoggerService
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -105,12 +114,25 @@ class DependencyContainer(private val application: Application) {
         OAuth2Controller(oAuth2Service, authService, config)
     }
 
+    // Nouveau système modulaire SDK
+    val serviceRegistry: ServiceRegistry by lazy {
+        ServiceRegistry(httpClient).apply {
+            // Enregistrement automatique des services
+            register(TimerService())
+            register(WebhookService())
+            register(GmailService())
+            register(RandomService())
+            register(TextService())
+            register(MathService())
+            register(LoggerService())
+        }
+    }
+
     val serviceAdapters: Map<String, ServiceAdapter> by lazy {
-        mapOf(
-            "timer" to TimerServiceAdapter(),
-            "webhook" to WebhookServiceAdapter(),
-            "gmail" to GmailServiceAdapter()
-        )
+        // Convertir les services SDK en ServiceAdapter via le bridge
+        serviceRegistry.getAll().associate { service ->
+            service.id to ServiceAdapterBridge(service)
+        }
     }
 
     val hookRegistry: HookRegistry by lazy {
