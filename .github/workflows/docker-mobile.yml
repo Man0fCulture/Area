@@ -81,7 +81,7 @@ jobs:
         name: Area ${{ github.ref_name }}
         body: "APK Flutter généré."
         files: |
-          Area-APK/Area.apk
+          Area.apk
         draft: false
         prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') || contains(github.ref, 'rc') }}
       env:
