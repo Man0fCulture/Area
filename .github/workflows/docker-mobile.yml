@@ -7,6 +7,9 @@ on:
       - '*'
   pull_request:
     branches: [ main ]
+    
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -81,7 +84,7 @@ jobs:
         name: Area ${{ github.ref_name }}
         body: "APK Flutter généré."
         files: |
-          Area.apk
+          Area-APK/Area.apk
         draft: false
         prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') || contains(github.ref, 'rc') }}
       env:
