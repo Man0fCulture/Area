@@ -77,14 +77,22 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: Area-APK
-      
+        path: ./apk
+        
+    - name: Debug - Check downloaded files
+      run: |
+        echo "📂 Current directory:"
+        pwd
+        echo "📄 Files in release folder:"
+        ls -R ./apk
+          
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
         name: Area ${{ github.ref_name }}
         body: "APK Flutter généré."
         files: |
-          Area-APK/Area.apk
+          apk/Area.apk
         draft: false
         prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') || contains(github.ref, 'rc') }}
       env:
