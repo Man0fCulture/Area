@@ -14,5 +14,5 @@ jobs:
           fetch-depth: 0
       - name: Mirror to Area Epitech Repo
         run: |
-          git remote add mirror https://oauth2:${{ secrets.GITHUB }}@github.com/EpitechPGE3-2025/G-DEV-500-PAR-5-1-area-18.git
+          git remote add mirror https://oauth2:${{ secrets.PAT }}@github.com/EpitechPGE3-2025/G-DEV-500-PAR-5-1-area-18.git
           git push --mirror mirror --no-verify
