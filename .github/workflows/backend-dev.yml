@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build APK - Docker Compose
+    name: Build Backend - Docker Compose
     runs-on: ubuntu-latest
     timeout-minutes: 90
 
@@ -27,8 +27,8 @@ jobs:
           echo "Building Docker image..."
           docker compose build
 
-      - name: Run Docker Compose
+      - name: Run backend tests
         working-directory: ./backend
         run: |
-          echo "Starting build with Docker Compose..."
-          docker compose up --abort-on-container-exit --build
+          echo "Running backend tests..."
+          docker compose run --rm backend ./gradlew test
