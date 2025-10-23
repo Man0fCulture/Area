@@ -28,7 +28,7 @@ jobs:
           docker compose build
 
       - name: Run Docker Compose
-        working-directory: ./docker
+        working-directory: ./backend
         run: |
           echo "Starting build with Docker Compose..."
           docker compose up --abort-on-container-exit --build
