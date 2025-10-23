@@ -38,4 +38,4 @@ jobs:
             sleep 3
           done
           echo "RabbitMQ is up, running backend tests..."
-          docker compose run --rm backend ./gradlew test
+          docker compose run --rm backend ./gradlew build
