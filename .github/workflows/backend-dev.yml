@@ -30,5 +30,12 @@ jobs:
       - name: Run backend tests
         working-directory: ./backend
         run: |
-          echo "Running backend tests..."
+          echo "Starting services..."
+          docker compose up -d
+          echo "Waiting for RabbitMQ to be ready..."
+          until docker compose exec rabbitmq rabbitmq-diagnostics check_running > /dev/null 2>&1; do
+            echo "RabbitMQ not ready yet..."
+            sleep 3
+          done
+          echo "RabbitMQ is up, running backend tests..."
           docker compose run --rm backend ./gradlew test
