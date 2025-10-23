@@ -1,0 +1,18 @@
+name: Build Front
+on: [push]
+
+jobs:
+  build:
+      name: Build Front
+      runs-on: ubuntu-latest
+      timeout-minutes: 90
+      
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+          
+        - name: Build Front
+          run: |
+            cd web
+            npm install
+            npm run build
