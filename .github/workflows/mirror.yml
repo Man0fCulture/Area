@@ -1,0 +1,18 @@
+name: Mirror after all builds
+on:
+  workflow_run:
+    workflows: ["Build Front"]
+    types: [completed]
+
+jobs:
+  mirror:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Mirror to Area Epitech Repo
+        run: |
+          git remote add mirror https://oauth2:${{ secrets.GITHUB }}@github.com/EpitechPGE3-2025/G-DEV-500-PAR-5-1-area-18.git
+          git push --mirror mirror --no-verify
