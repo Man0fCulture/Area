@@ -1,138 +1,138 @@
-name: Frontend CI/CD (main)
+# name: Frontend CI/CD (main)
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+# on:
+#   push:
+#     branches: [main]
+#   pull_request:
+#     branches: [main]
 
-concurrency:
-  group: frontend-main
-  cancel-in-progress: true
+# concurrency:
+#   group: frontend-main
+#   cancel-in-progress: true
 
-permissions:
-  contents: read
-  actions: write
+# permissions:
+#   contents: read
+#   actions: write
 
-env:
-  DEPLOY_PATH: /home/ubuntu/area-frontend
+# env:
+#   DEPLOY_PATH: /home/ubuntu/area-frontend
 
-jobs:
-  build:
-    name: Build & checks
-    runs-on: ubuntu-latest
+# jobs:
+#   build:
+#     name: Build & checks
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+#       - name: Setup Node
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: 20
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 9
+#       - name: Setup pnpm
+#         uses: pnpm/action-setup@v3
+#         with:
+#           version: 9
 
-      - name: Configure pnpm store
-        run: pnpm config set store-dir ~/.pnpm-store
+#       - name: Configure pnpm store
+#         run: pnpm config set store-dir ~/.pnpm-store
 
-      - name: Restore pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
+#       - name: Restore pnpm cache
+#         uses: actions/cache@v4
+#         with:
+#           path: ~/.pnpm-store
+#           key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+#           restore-keys: |
+#             ${{ runner.os }}-pnpm-
 
-      - name: Install deps
-        shell: bash
-        run: |
-          set -euo pipefail
-          if pnpm install --frozen-lockfile --main=false; then
-            echo "Frozen lockfile install passed"
-          else
-            echo "::warning::Lockfile outdated, regenerating"
-            pnpm install --no-frozen-lockfile --main=false
-            git diff --exit-code pnpm-lock.yaml || { echo "::error::pnpm-lock.yaml changed. Commit the updated lockfile."; exit 1; }
-          fi
+#       - name: Install deps
+#         shell: bash
+#         run: |
+#           set -euo pipefail
+#           if pnpm install --frozen-lockfile --main=false; then
+#             echo "Frozen lockfile install passed"
+#           else
+#             echo "::warning::Lockfile outdated, regenerating"
+#             pnpm install --no-frozen-lockfile --main=false
+#             git diff --exit-code pnpm-lock.yaml || { echo "::error::pnpm-lock.yaml changed. Commit the updated lockfile."; exit 1; }
+#           fi
 
-      - name: Ensure React.js is present
-        run: |
-          node -e "const p=require('./package.json'); if(!(p.dependencies?.next||p.devDependencies?.next)){console.error('Next.js introuvable'); process.exit(1);} console.log('Next.js:',p.dependencies?.next||p.devDependencies?.next);"
+#       - name: Ensure React.js is present
+#         run: |
+#           node -e "const p=require('./package.json'); if(!(p.dependencies?.next||p.devDependencies?.next)){console.error('Next.js introuvable'); process.exit(1);} console.log('Next.js:',p.dependencies?.next||p.devDependencies?.next);"
 
-      - name: Check React.js latest (warning if outdated)
-        run: |
-          set -e
-          INSTALLED=$(node -e "try{console.log(require('next/package.json').version)}catch(e){process.exit(1)}")
-          LATEST=$(npm view next version)
-          echo "Installed: $INSTALLED | Latest: $LATEST"
-          if [ "$INSTALLED" != "$LATEST" ]; then
-            echo "::warning::React.js is not the latest (installed: $INSTALLED, latest: $LATEST)."
-          fi
+#       - name: Check React.js latest (warning if outdated)
+#         run: |
+#           set -e
+#           INSTALLED=$(node -e "try{console.log(require('next/package.json').version)}catch(e){process.exit(1)}")
+#           LATEST=$(npm view next version)
+#           echo "Installed: $INSTALLED | Latest: $LATEST"
+#           if [ "$INSTALLED" != "$LATEST" ]; then
+#             echo "::warning::React.js is not the latest (installed: $INSTALLED, latest: $LATEST)."
+#           fi
 
-      - name: Build (React.js)
-        run: pnpm build
+#       - name: Build (React.js)
+#         run: pnpm build
 
-      - name: Guard — refuser .env & fichiers sensibles suivis par git
-        run: |
-          set -euo pipefail
-          files=$(git ls-files)
-          bad_env=$(echo "$files" | grep -E '(^|/)[.]env($|[.]|/)' | grep -Evi '([.]example$|[.]exemple$)' || true)
-          bad_other=$(echo "$files" | grep -E '(^|/)id_rsa($|[.]|_)|(^|/).+[.]pem($|$)|(^|/).+[.]key($|$)|(^|/).+[.]p12($|$)|(^|/)[.]ssh/.*' || true)
-          bad_files=$(echo -e "$bad_env\n$bad_other" | sed '/^$/d' | sort -u)
-          if [ -n "$bad_files" ]; then
-            echo "::error::Forbidden files detected:$bad_files"
-            exit 1
-          fi
+#       - name: Guard — refuser .env & fichiers sensibles suivis par git
+#         run: |
+#           set -euo pipefail
+#           files=$(git ls-files)
+#           bad_env=$(echo "$files" | grep -E '(^|/)[.]env($|[.]|/)' | grep -Evi '([.]example$|[.]exemple$)' || true)
+#           bad_other=$(echo "$files" | grep -E '(^|/)id_rsa($|[.]|_)|(^|/).+[.]pem($|$)|(^|/).+[.]key($|$)|(^|/).+[.]p12($|$)|(^|/)[.]ssh/.*' || true)
+#           bad_files=$(echo -e "$bad_env\n$bad_other" | sed '/^$/d' | sort -u)
+#           if [ -n "$bad_files" ]; then
+#             echo "::error::Forbidden files detected:$bad_files"
+#             exit 1
+#           fi
 
-      - name: Upload artifact (workspace)
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-workspace
-          path: ./
-          compression-level: 9
-          if-no-files-found: error
+#       - name: Upload artifact (workspace)
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: app-workspace
+#           path: ./
+#           compression-level: 9
+#           if-no-files-found: error
 
-  deploy:
-    name: Deploy to VM (main only)
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-    needs: build
-    runs-on: ubuntu-latest
-    env:
-      SSH_HOST: ${{ secrets.SSH_HOST }}
-      SSH_USER: ${{ secrets.SSH_USER }}
-      SSH_PORT: ${{ secrets.SSH_PORT }}
+#   deploy:
+#     name: Deploy to VM (main only)
+#     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+#     needs: build
+#     runs-on: ubuntu-latest
+#     env:
+#       SSH_HOST: ${{ secrets.SSH_HOST }}
+#       SSH_USER: ${{ secrets.SSH_USER }}
+#       SSH_PORT: ${{ secrets.SSH_PORT }}
 
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: app-workspace
-          path: ./web
+#     steps:
+#       - name: Download artifact
+#         uses: actions/download-artifact@v4
+#         with:
+#           name: app-workspace
+#           path: ./web
 
-      - name: Start SSH agent
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+#       - name: Start SSH agent
+#         uses: webfactory/ssh-agent@v0.9.0
+#         with:
+#           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Trust host key
-        shell: bash
-        run: |
-          mkdir -p ~/.ssh
-          PORT="${SSH_PORT:-22}"
-          ssh-keyscan -p "$PORT" "$SSH_HOST" >> ~/.ssh/known_hosts
+#       - name: Trust host key
+#         shell: bash
+#         run: |
+#           mkdir -p ~/.ssh
+#           PORT="${SSH_PORT:-22}"
+#           ssh-keyscan -p "$PORT" "$SSH_HOST" >> ~/.ssh/known_hosts
 
-      - name: Rsync workspace to server
-        shell: bash
-        run: |
-          PORT="${SSH_PORT:-22}"
-          rsync -az --exclude '.git' --exclude '.github' --exclude 'node_modules' --exclude '.env*' --exclude 'uploads' --exclude 'logs' workspace/ "${SSH_USER}@${SSH_HOST}:${DEPLOY_PATH}"
+#       - name: Rsync workspace to server
+#         shell: bash
+#         run: |
+#           PORT="${SSH_PORT:-22}"
+#           rsync -az --exclude '.git' --exclude '.github' --exclude 'node_modules' --exclude '.env*' --exclude 'uploads' --exclude 'logs' workspace/ "${SSH_USER}@${SSH_HOST}:${DEPLOY_PATH}"
 
-      - name: Fix ownership
-        shell: bash
-        run: |
-          PORT="${SSH_PORT:-22}"
-          ssh -p "$PORT" "${SSH_USER}@${SSH_HOST}" "sudo chown -R ubuntu:ubuntu '${DEPLOY_PATH}'"
+#       - name: Fix ownership
+#         shell: bash
+#         run: |
+#           PORT="${SSH_PORT:-22}"
+#           ssh -p "$PORT" "${SSH_USER}@${SSH_HOST}" "sudo chown -R ubuntu:ubuntu '${DEPLOY_PATH}'"
