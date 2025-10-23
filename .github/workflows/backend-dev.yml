@@ -1,0 +1,34 @@
+name: Build Backend
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build APK - Docker Compose
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify Docker setup
+        run: |
+          docker --version
+          docker compose version
+
+      - name: Build Docker image
+        working-directory: ./backend
+        run: |
+          echo "Building Docker image..."
+          docker compose build
+
+      - name: Run Docker Compose
+        working-directory: ./docker
+        run: |
+          echo "Starting build with Docker Compose..."
+          docker compose up --abort-on-container-exit --build
