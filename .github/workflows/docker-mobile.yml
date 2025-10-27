@@ -31,7 +31,7 @@ jobs:
       - name: Check generated APK
         run: |
           echo "Verifying if APK was created..."
-          APK_PATH="mobile_apk/Area.apk"
+          APK_PATH="mobile_apk/client.apk"
           if [ ! -f "$APK_PATH" ]; then
             echo "APK not found at $APK_PATH"
             echo "Listing output directories for debugging:"
@@ -44,7 +44,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Area-APK
-          path: mobile_apk/Area.apk
+          path: mobile_apk/client.apk
   
   create-release:
     name: Create GitHub Release
@@ -75,7 +75,7 @@ jobs:
         name: Area ${{ github.ref_name }}
         body: "APK Flutter généré."
         files: |
-          apk/Area.apk
+          apk/client.apk
         draft: false
         prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') || contains(github.ref, 'rc') }}
       env:
