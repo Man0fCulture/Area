@@ -19,13 +19,13 @@ jobs:
           docker compose version
 
       - name: Build Docker image
-        working-directory: ./backend
+        working-directory: ./docker
         run: |
           echo "Building Docker image..."
-          docker compose build
+          docker compose build mongodb redis rabbitmq server
 
       - name: Run backend container
-        working-directory: ./backend
+        working-directory: ./docker
         run: |
           echo "Starting services..."
           docker compose up -d mongodb redis rabbitmq
@@ -35,7 +35,7 @@ jobs:
             sleep 3
           done
           echo "Starting backend container briefly..."
-          docker compose up -d backend
+          docker compose up -d server
           echo "Waiting 300 seconds for app to start..."
           sleep 300
           echo "Checking container logs:"
