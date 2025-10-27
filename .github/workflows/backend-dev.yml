@@ -40,5 +40,14 @@ jobs:
           sleep 300
           echo "Checking container logs:"
           docker compose logs backend | tail -n 30
+          echo "Waiting for backend to respond on port 8080..."
+          for i in {1..30}; do
+            if curl -sSf http://localhost:8080/about.json > /dev/null; then
+              echo "Backend is up!"
+              exit 0
+            fi
+            echo "Waiting..."
+            sleep 3
+          done
           echo "Stopping containers..."
           docker compose down -v
