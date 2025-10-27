@@ -1,7 +1,7 @@
 name: Mirror after all builds
 on:
   workflow_run:
-    workflows: ["Build Front"]
+    workflows: ["Build Front", "Build Backend", "Build Flutter APK"]
     types: [completed]
 
 jobs:
