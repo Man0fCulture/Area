@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart';
 import 'create_area_page.dart';
+import 'profile_page.dart';
 import '../models/area.dart';
 import '../services/area_service.dart';
 import '../services/auth_service.dart';
@@ -421,73 +422,3 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 }
-
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          const SizedBox(height: 20),
-          CircleAvatar(
-            radius: 60,
-            backgroundColor: Colors.blue[100],
-            child: Icon(
-              Icons.person,
-              size: 60,
-              color: Colors.blue[800],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Utilisateur',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.blue[800],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'user@example.com',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 32),
-          _buildProfileItem(
-            icon: Icons.email,
-            title: 'Email',
-            subtitle: 'user@example.com',
-          ),
-          _buildProfileItem(
-            icon: Icons.phone,
-            title: 'Téléphone',
-            subtitle: '+33 6 12 34 56 78',
-          ),
-          _buildProfileItem(
-            icon: Icons.location_on,
-            title: 'Adresse',
-            subtitle: 'Paris, France',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProfileItem({required IconData icon, required String title, required String subtitle}) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: ListTile(
-        leading: Icon(icon, color: Colors.blue),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text(subtitle),
-      ),
-    );
-  }
-}
-
