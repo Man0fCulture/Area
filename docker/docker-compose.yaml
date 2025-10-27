@@ -1,5 +1,23 @@
 services:
 
+# WEB CLIENT
+  client_web:
+    build:
+      context: ./../web
+      dockerfile: web.dockerfile
+    container_name: area-web
+    volumes:
+      - node-modules:/app/node_modules:rw
+      - shared_apk:/shared:rw
+    ports:
+      - "8081:80"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - area-network
+# WEB CLIENT
+
+# MOBILE CLIENT
   client_mobile:
     build:
       context: ./../mobile
@@ -7,11 +25,115 @@ services:
     container_name: area-mobile
     volumes:
       - ./../mobile:/app:rw
-      - ./../mobile_apk:/shared:rw
+      - shared_apk:/shared:rw
       - gradle-cache:/root/.gradle
       - flutter-cache:/opt/flutter/.pub-cache
     command: ["bash", "-lc", "flutter pub get && flutter build apk --release && cp build/app/outputs/flutter-apk/app-release.apk /shared/Area.apk"]
+# MOBILE CLIENT
+
+#BACKEND SERVICES
+  mongodb:
+    image: mongo:7.0
+    container_name: area-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: area
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - area-network
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: area-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass redis123
+    volumes:
+      - redis_data:/data
+    networks:
+      - area-network
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: area-rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - area-network
+
+  backend:
+    build:
+      context: ./../backend
+      dockerfile: Dockerfile
+    container_name: area-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      MONGODB_URI: mongodb://admin:admin123@mongodb:27017/area?authSource=admin
+      MONGODB_DATABASE: area
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: redis123
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: admin
+      RABBITMQ_PASSWORD: admin123
+      RABBITMQ_VHOST: /
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+      FACEBOOK_CLIENT_ID: ${FACEBOOK_CLIENT_ID}
+      FACEBOOK_CLIENT_SECRET: ${FACEBOOK_CLIENT_SECRET}
+      CORS_ALLOWED_HOSTS: http://localhost:3000,http://localhost:8081
+    depends_on:
+      mongodb:
+        condition: service_started
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+
+    networks:
+      - area-network
+#BACKEND SERVICES
 
 volumes:
   gradle-cache:
+    driver: local
   flutter-cache:
+    driver: local
+  mongodb_data:
+    driver: local
+  redis_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  shared_apk:
+    driver: local
+  node-modules:
+    driver: local
+
+networks:
+  area-network:
+    driver: bridge
