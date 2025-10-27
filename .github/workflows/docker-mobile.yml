@@ -20,7 +20,7 @@ jobs:
         working-directory: ./docker
         run: |
           echo "Building Docker image..."
-          docker compose --build client_mobile
+          docker compose build client_mobile
 
       - name: Run Docker Compose
         working-directory: ./docker
