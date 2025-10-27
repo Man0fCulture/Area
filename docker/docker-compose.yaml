@@ -28,7 +28,7 @@ services:
       - ./../mobile_apk:/shared:rw
       - gradle-cache:/root/.gradle
       - flutter-cache:/opt/flutter/.pub-cache
-    command: ["bash", "-lc", "flutter pub get && flutter build apk --release && cp build/app/outputs/flutter-apk/app-release.apk /shared/Area.apk"]
+    command: ["bash", "-lc", "flutter pub get && flutter build apk --release && cp build/app/outputs/flutter-apk/app-release.apk /shared/client.apk"]
 # MOBILE CLIENT
 
 #BACKEND SERVICES
