@@ -16,29 +16,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Verify Docker setup
-        run: |
-          docker --version
-          docker compose version
-
-      - name: Move to docker directory
-        working-directory: ./docker
-        run: |
-          echo "Current directory:"
-          pwd
-          ls -l
-
       - name: Build Docker image
         working-directory: ./docker
         run: |
           echo "Building Docker image..."
-          docker compose build
+          docker compose --build client_mobile
 
       - name: Run Docker Compose
         working-directory: ./docker
         run: |
           echo "Starting build with Docker Compose..."
-          docker compose up --abort-on-container-exit --build
+          docker compose up --abort-on-container-exit --build client_mobile
 
       - name: Check generated APK
         run: |
