@@ -79,7 +79,7 @@ services:
     networks:
       - area-network
 
-  backend:
+  server:
     build:
       context: ./../backend
       dockerfile: Dockerfile
