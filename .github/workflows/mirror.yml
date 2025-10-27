@@ -1,12 +1,25 @@
 name: Mirror after all builds
 on:
-  workflow_run:
-    workflows: ["Build Front", "Build Backend", "Build Flutter APK"]
-    types: [completed]
+  push:
+    branches: [ main ]
+    tags:
+      - '*'
+  pull_request:
+    branches: [ main ]
 
 jobs:
+  build_front:
+    uses: ./.github/workflows/frontend-dev.yml
+
+  build_backend:
+    uses: ./.github/workflows/backend-dev.yml
+
+  build_flutter:
+    uses: ./.github/workflows/docker-mobile.yml
+    
   mirror:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    needs: [build_front, build_backend, build_flutter]
+    if: ${{ success() }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
