@@ -1,4 +1,4 @@
-name: Mirror after all builds
+name: CI + Mirror after all builds
 on:
   push:
     branches: [ main ]
@@ -6,7 +6,10 @@ on:
       - '*'
   pull_request:
     branches: [ main ]
-
+    
+permissions:
+  contents: write
+  
 jobs:
   build_front:
     uses: ./.github/workflows/frontend-dev.yml
