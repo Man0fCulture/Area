@@ -13,7 +13,7 @@ function OAuthErrorContent() {
   const error = searchParams?.get('error') || 'Une erreur est survenue lors de l\'authentification';
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#FF6B35] via-[#FFB627] to-[#FF6B35] flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <div className="text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-[#E74C3C] bg-opacity-10 rounded-2xl mb-4">
@@ -43,7 +43,7 @@ function OAuthErrorContent() {
 export default function OAuthErrorPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#FF6B35] via-[#FFB627] to-[#FF6B35] flex items-center justify-center">
         <Loading size="lg" />
       </div>
     }>
