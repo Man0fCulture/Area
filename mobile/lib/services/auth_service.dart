@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../constants/api_config.dart';
 import '../models/token_response.dart';
 import '../models/api_error.dart';
+import '../models/user.dart';
 import 'api_service.dart';
 
 class AuthService {
@@ -153,6 +154,20 @@ class AuthService {
       }
     } catch (e) {
       return {'success': false, 'error': 'Erreur OAuth: ${e.toString()}'};
+    }
+  }
+
+  Future<User?> getUserProfile() async {
+    try {
+      final response = await _apiService.get('/api/user/me', requiresAuth: true);
+
+      if (response.statusCode == 200) {
+        final user = User.fromJson(jsonDecode(response.body));
+        return user;
+      }
+      return null;
+    } catch (e) {
+      return null;
     }
   }
 }
