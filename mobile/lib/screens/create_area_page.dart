@@ -1,9 +1,22 @@
 import 'package:flutter/material.dart';
+import '../models/area.dart';
 import '../models/service.dart';
 import '../services/area_service.dart';
 
+extension FirstWhereOrNull<T> on List<T> {
+  T? firstWhereOrNull(bool Function(T) test) {
+    try {
+      return firstWhere(test);
+    } catch (e) {
+      return null;
+    }
+  }
+}
+
 class CreateAreaPage extends StatefulWidget {
-  const CreateAreaPage({super.key});
+  final Area? existingArea; 
+
+  const CreateAreaPage({super.key, this.existingArea});
 
   @override
   State<CreateAreaPage> createState() => _CreateAreaPageState();
@@ -17,7 +30,7 @@ class _CreateAreaPageState extends State<CreateAreaPage> {
 
   List<Service> _services = [];
   bool _isLoadingServices = true;
-  bool _isCreating = false;
+  bool _isSaving = false;
 
   Service? _selectedActionService;
   ActionItem? _selectedAction;
@@ -27,10 +40,74 @@ class _CreateAreaPageState extends State<CreateAreaPage> {
   final Map<String, TextEditingController> _actionConfigControllers = {};
   final Map<String, TextEditingController> _reactionConfigControllers = {};
 
+  bool get _isEditing => widget.existingArea != null;
+
   @override
   void initState() {
     super.initState();
     _loadServices();
+    if (_isEditing) {
+      _loadExistingArea();
+    }
+  }
+
+  Future<void> _loadExistingArea() async {
+    final area = widget.existingArea!;
+    _nameController.text = area.name;
+    _descriptionController.text = area.description ?? '';
+
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    if (mounted) {
+      setState(() {
+        _selectedActionService = _services.firstWhereOrNull(
+          (s) => s.id == area.action.serviceId,
+        );
+
+        if (_selectedActionService != null) {
+          _selectedAction = _selectedActionService!.actions.firstWhereOrNull(
+            (a) => a.id == area.action.actionId,
+          );
+
+          if (_selectedAction != null) {
+            _actionConfigControllers.clear();
+            for (var param in _selectedAction!.parameters) {
+              final controller = TextEditingController();
+              final value = area.action.config[param.name];
+              if (value != null) {
+                controller.text = value.toString();
+              }
+              _actionConfigControllers[param.name] = controller;
+            }
+          }
+        }
+
+        if (area.reactions.isNotEmpty) {
+          final firstReaction = area.reactions.first;
+          _selectedReactionService = _services.firstWhereOrNull(
+            (s) => s.id == firstReaction.serviceId,
+          );
+
+          if (_selectedReactionService != null) {
+            _selectedReaction = _selectedReactionService!.reactions.firstWhereOrNull(
+              (r) => r.id == firstReaction.reactionId,
+            );
+
+            if (_selectedReaction != null) {
+              _reactionConfigControllers.clear();
+              for (var param in _selectedReaction!.parameters) {
+                final controller = TextEditingController();
+                final value = firstReaction.config[param.name];
+                if (value != null) {
+                  controller.text = value.toString();
+                }
+                _reactionConfigControllers[param.name] = controller;
+              }
+            }
+          }
+        }
+      });
+    }
   }
 
   @override
@@ -68,7 +145,7 @@ class _CreateAreaPageState extends State<CreateAreaPage> {
     }
   }
 
-  Future<void> _createArea() async {
+  Future<void> _saveArea() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedAction == null || _selectedReaction == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -81,7 +158,7 @@ class _CreateAreaPageState extends State<CreateAreaPage> {
     }
 
     setState(() {
-      _isCreating = true;
+      _isSaving = true;
     });
 
     try {
@@ -101,35 +178,65 @@ class _CreateAreaPageState extends State<CreateAreaPage> {
         }
       }
 
-      await _areaService.createArea(
-        name: _nameController.text.trim(),
-        description: _descriptionController.text.trim().isNotEmpty
-            ? _descriptionController.text.trim()
-            : null,
-        actionServiceId: _selectedActionService!.id,
-        actionId: _selectedAction!.id,
-        actionConfig: actionConfig,
-        reactions: [
-          {
-            'serviceId': _selectedReactionService!.id,
-            'reactionId': _selectedReaction!.id,
-            'config': reactionConfig,
-          }
-        ],
-      );
-
-      if (mounted) {
-        Navigator.pop(context, true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('AREA créée avec succès'),
-            backgroundColor: Colors.green,
-          ),
+      if (_isEditing) {
+        await _areaService.updateArea(
+          id: widget.existingArea!.id,
+          name: _nameController.text.trim(),
+          description: _descriptionController.text.trim().isNotEmpty
+              ? _descriptionController.text.trim()
+              : null,
+          actionServiceId: _selectedActionService!.id,
+          actionId: _selectedAction!.id,
+          actionConfig: actionConfig,
+          reactions: [
+            {
+              'serviceId': _selectedReactionService!.id,
+              'reactionId': _selectedReaction!.id,
+              'config': reactionConfig,
+            }
+          ],
         );
+
+        if (mounted) {
+          Navigator.pop(context, true);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('AREA modifiée avec succès'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        await _areaService.createArea(
+          name: _nameController.text.trim(),
+          description: _descriptionController.text.trim().isNotEmpty
+              ? _descriptionController.text.trim()
+              : null,
+          actionServiceId: _selectedActionService!.id,
+          actionId: _selectedAction!.id,
+          actionConfig: actionConfig,
+          reactions: [
+            {
+              'serviceId': _selectedReactionService!.id,
+              'reactionId': _selectedReaction!.id,
+              'config': reactionConfig,
+            }
+          ],
+        );
+
+        if (mounted) {
+          Navigator.pop(context, true);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('AREA créée avec succès'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
       }
     } catch (e) {
       setState(() {
-        _isCreating = false;
+        _isSaving = false;
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -146,7 +253,7 @@ class _CreateAreaPageState extends State<CreateAreaPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Créer une AREA'),
+        title: Text(_isEditing ? 'Modifier l\'AREA' : 'Créer une AREA'),
       ),
       body: _isLoadingServices
           ? const Center(child: CircularProgressIndicator())
@@ -376,11 +483,11 @@ class _CreateAreaPageState extends State<CreateAreaPage> {
                     ],
                     const SizedBox(height: 32),
                     ElevatedButton(
-                      onPressed: _isCreating ? null : _createArea,
+                      onPressed: _isSaving ? null : _saveArea,
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                      child: _isCreating
+                      child: _isSaving
                           ? const SizedBox(
                               height: 20,
                               width: 20,
@@ -389,9 +496,9 @@ class _CreateAreaPageState extends State<CreateAreaPage> {
                                 strokeWidth: 2,
                               ),
                             )
-                          : const Text(
-                              'Créer l\'AREA',
-                              style: TextStyle(fontSize: 16),
+                          : Text(
+                              _isEditing ? 'Modifier l\'AREA' : 'Créer l\'AREA',
+                              style: const TextStyle(fontSize: 16),
                             ),
                     ),
                   ],

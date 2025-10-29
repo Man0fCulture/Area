@@ -132,6 +132,16 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
+  Future<void> _editArea(Area area) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CreateAreaPage(existingArea: area)),
+    );
+    if (result == true) {
+      _loadAreas();
+    }
+  }
+
   Future<void> _deleteArea(Area area) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -322,11 +332,23 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                     PopupMenuButton<String>(
                       onSelected: (value) {
-                        if (value == 'delete') {
+                        if (value == 'edit') {
+                          _editArea(area);
+                        } else if (value == 'delete') {
                           _deleteArea(area);
                         }
                       },
                       itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: 'edit',
+                          child: Row(
+                            children: [
+                              Icon(Icons.edit, color: Colors.blue),
+                              SizedBox(width: 8),
+                              Text('Modifier'),
+                            ],
+                          ),
+                        ),
                         const PopupMenuItem(
                           value: 'delete',
                           child: Row(

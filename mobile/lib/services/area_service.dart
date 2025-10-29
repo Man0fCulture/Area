@@ -74,12 +74,32 @@ class AreaService {
     }
   }
 
-  Future<Area> updateArea(String id, {String? name, String? description, bool? active}) async {
+  Future<Area> updateArea({
+    required String id,
+    String? name,
+    String? description,
+    bool? active,
+    String? actionServiceId,
+    String? actionId,
+    Map<String, dynamic>? actionConfig,
+    List<Map<String, dynamic>>? reactions,
+  }) async {
     try {
       final Map<String, dynamic> data = {};
       if (name != null) data['name'] = name;
       if (description != null) data['description'] = description;
       if (active != null) data['active'] = active;
+
+      if (actionServiceId != null && actionId != null) {
+        data['action'] = {
+          'serviceId': actionServiceId,
+          'actionId': actionId,
+          'config': actionConfig ?? {},
+        };
+      }
+      if (reactions != null) {
+        data['reactions'] = reactions;
+      }
 
       final response = await _apiService.patch('${ApiConfig.areasEndpoint}/$id', data, requiresAuth: true);
 
