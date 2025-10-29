@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'login_page.dart';
 import 'create_area_page.dart';
 import 'profile_page.dart';
+import 'services_page.dart';
 import '../models/area.dart';
 import '../services/area_service.dart';
 import '../services/auth_service.dart';
@@ -18,6 +19,7 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = [
     const DashboardPage(),
+    const ServicesPage(),
     const ProfilePage(),
   ];
 
@@ -57,6 +59,10 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),
             label: 'Tableau de bord',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.extension),
+            label: 'Services',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

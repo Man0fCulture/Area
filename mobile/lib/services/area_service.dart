@@ -149,4 +149,51 @@ class AreaService {
       throw Exception('Error fetching services: ${e.toString()}');
     }
   }
+
+  Future<List<Service>> getSubscribedServices() async {
+    try {
+      final response = await _apiService.get('/api/user/services', requiresAuth: true);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((service) => Service.fromJson(service)).toList();
+      } else {
+        throw Exception('Failed to load subscribed services');
+      }
+    } catch (e) {
+      throw Exception('Error fetching subscribed services: ${e.toString()}');
+    }
+  }
+
+  Future<void> subscribeToService(String serviceId) async {
+    try {
+      final response = await _apiService.post(
+        '/api/user/services/$serviceId/subscribe',
+        {},
+        requiresAuth: true,
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw Exception('Failed to subscribe to service');
+      }
+    } catch (e) {
+      throw Exception('Error subscribing to service: ${e.toString()}');
+    }
+  }
+
+  Future<void> unsubscribeFromService(String serviceId) async {
+    try {
+      final response = await _apiService.post(
+        '/api/user/services/$serviceId/unsubscribe',
+        {},
+        requiresAuth: true,
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception('Failed to unsubscribe from service');
+      }
+    } catch (e) {
+      throw Exception('Error unsubscribing from service: ${e.toString()}');
+    }
+  }
 }
