@@ -1,0 +1,272 @@
+service:
+  id: jsonplaceholder
+  name: JSONPlaceholder
+  displayName: JSONPlaceholder (Test API)
+  description: Fake REST API for testing and prototyping
+  category: Testing
+  icon: test.svg
+  color: "#FF6B6B"
+  baseUrl: https://jsonplaceholder.typicode.com
+
+auth:
+  type: NONE  # Pas d'auth nécessaire
+
+actions:
+  - id: new_post
+    name: New Post
+    description: Triggers when a new post is added (for testing)
+    type: POLLING
+    pollInterval: 60
+    config:
+      - name: user_id
+        type: NUMBER
+        label: User ID (optional)
+        description: Filter posts by user ID
+        required: false
+        placeholder: "1"
+
+    endpoint:
+      method: GET
+      url: "{{service.baseUrl}}/posts"
+      headers:
+        Content-Type: application/json
+      params:
+        userId: "{{config.user_id}}"
+
+    output:
+      - name: post_id
+        jsonPath: $[-1].id
+
+      - name: title
+        jsonPath: $[-1].title
+
+      - name: body
+        jsonPath: $[-1].body
+
+      - name: user_id
+        jsonPath: $[-1].userId
+
+    # Toujours déclenché pour testing
+    condition: "$[-1].id != null"
+
+  - id: new_comment
+    name: New Comment
+    description: Triggers when a new comment is posted
+    type: POLLING
+    pollInterval: 60
+    config:
+      - name: post_id
+        type: NUMBER
+        label: Post ID (optional)
+        description: Filter comments by post ID
+        required: false
+
+    endpoint:
+      method: GET
+      url: "{{service.baseUrl}}/comments"
+      params:
+        postId: "{{config.post_id}}"
+
+    output:
+      - name: comment_id
+        jsonPath: $[-1].id
+
+      - name: name
+        jsonPath: $[-1].name
+
+      - name: email
+        jsonPath: $[-1].email
+
+      - name: body
+        jsonPath: $[-1].body
+
+      - name: post_id
+        jsonPath: $[-1].postId
+
+    condition: "$[-1].id != null"
+
+  - id: new_todo
+    name: New Todo
+    description: Triggers when a new todo is created
+    type: POLLING
+    pollInterval: 60
+    config:
+      - name: user_id
+        type: NUMBER
+        label: User ID (optional)
+        required: false
+
+      - name: completed
+        type: SELECT
+        label: Filter by Status
+        required: false
+        options:
+          - all
+          - completed
+          - pending
+
+    endpoint:
+      method: GET
+      url: "{{service.baseUrl}}/todos"
+      params:
+        userId: "{{config.user_id}}"
+
+    output:
+      - name: todo_id
+        jsonPath: $[-1].id
+
+      - name: title
+        jsonPath: $[-1].title
+
+      - name: completed
+        jsonPath: $[-1].completed
+
+      - name: user_id
+        jsonPath: $[-1].userId
+
+    condition: "$[-1].id != null"
+
+reactions:
+  - id: create_post
+    name: Create Post
+    description: Create a new post (simulated - JSONPlaceholder doesn't persist data)
+    config:
+      - name: title
+        type: STRING
+        label: Post Title
+        required: true
+        placeholder: "My new post"
+
+      - name: body
+        type: TEXT
+        label: Post Body
+        required: true
+        placeholder: "This is the content of my post"
+
+      - name: user_id
+        type: NUMBER
+        label: User ID
+        required: false
+        default: "1"
+
+    endpoint:
+      method: POST
+      url: "{{service.baseUrl}}/posts"
+      headers:
+        Content-Type: application/json
+      body:
+        title: "{{config.title}}"
+        body: "{{config.body}}"
+        userId: "{{config.user_id}}"
+
+  - id: create_comment
+    name: Create Comment
+    description: Create a new comment (simulated)
+    config:
+      - name: post_id
+        type: NUMBER
+        label: Post ID
+        required: true
+        default: "1"
+        placeholder: "{{trigger.post_id}}"
+
+      - name: name
+        type: STRING
+        label: Commenter Name
+        required: true
+
+      - name: email
+        type: EMAIL
+        label: Commenter Email
+        required: true
+
+      - name: body
+        type: TEXT
+        label: Comment Body
+        required: true
+
+    endpoint:
+      method: POST
+      url: "{{service.baseUrl}}/comments"
+      headers:
+        Content-Type: application/json
+      body:
+        postId: "{{config.post_id}}"
+        name: "{{config.name}}"
+        email: "{{config.email}}"
+        body: "{{config.body}}"
+
+  - id: create_todo
+    name: Create Todo
+    description: Create a new todo item (simulated)
+    config:
+      - name: title
+        type: STRING
+        label: Todo Title
+        required: true
+        placeholder: "Buy groceries"
+
+      - name: completed
+        type: BOOLEAN
+        label: Mark as Completed
+        required: false
+        default: "false"
+
+      - name: user_id
+        type: NUMBER
+        label: User ID
+        required: false
+        default: "1"
+
+    endpoint:
+      method: POST
+      url: "{{service.baseUrl}}/todos"
+      headers:
+        Content-Type: application/json
+      body:
+        title: "{{config.title}}"
+        completed: "{{config.completed}}"
+        userId: "{{config.user_id}}"
+
+  - id: update_post
+    name: Update Post
+    description: Update an existing post (simulated)
+    config:
+      - name: post_id
+        type: NUMBER
+        label: Post ID
+        required: true
+        placeholder: "{{trigger.post_id}}"
+
+      - name: title
+        type: STRING
+        label: New Title
+        required: true
+
+      - name: body
+        type: TEXT
+        label: New Body
+        required: true
+
+    endpoint:
+      method: PUT
+      url: "{{service.baseUrl}}/posts/{{config.post_id}}"
+      headers:
+        Content-Type: application/json
+      body:
+        title: "{{config.title}}"
+        body: "{{config.body}}"
+
+  - id: delete_post
+    name: Delete Post
+    description: Delete a post (simulated)
+    config:
+      - name: post_id
+        type: NUMBER
+        label: Post ID
+        required: true
+        placeholder: "{{trigger.post_id}}"
+
+    endpoint:
+      method: DELETE
+      url: "{{service.baseUrl}}/posts/{{config.post_id}}"

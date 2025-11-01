@@ -125,6 +125,21 @@ Toutes les réponses sont en JSON. Les erreurs suivent ce format :
 - **Response** : `{ "accounts": [{ "provider": "google", "email": "...", "linkedAt": "...", "displayName": "Google" }] }`
 - **Utilisation** : Afficher les comptes sociaux liés dans les paramètres
 
+### Refresh OAuth Token 🔒
+**POST** `/api/auth/oauth/{provider}/refresh`
+- **Headers** : `Authorization: Bearer <token>`
+- **Params** : `provider` (google, github, facebook)
+- **Response** : `{ "accessToken": "new-oauth-token", "expiresIn": 3600 }`
+- **Comportement** :
+  - Utilise le refresh token OAuth stocké pour obtenir un nouveau access token du provider
+  - Met à jour automatiquement le token dans la base de données
+  - Retourne le nouveau access token pour utilisation immédiate
+- **Erreurs** :
+  - `400` : Pas de refresh token disponible pour ce provider
+  - `404` : Utilisateur ou compte OAuth non trouvé
+  - `500` : Échec du rafraîchissement auprès du provider
+- **Utilisation** : Renouveler l'accès OAuth pour les services qui requirent une authentification (Gmail, Calendar, etc.)
+
 ---
 
 ## 📦 Services Endpoints
@@ -154,6 +169,22 @@ Toutes les réponses sont en JSON. Les erreurs suivent ce format :
 ---
 
 ## 🔄 Areas Endpoints (Toutes nécessitent authentification 🔒)
+
+**Résumé des endpoints disponibles:**
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| GET | `/api/areas` | Liste toutes les AREAs de l'utilisateur |
+| POST | `/api/areas` | Créer une nouvelle AREA |
+| GET | `/api/areas/{id}` | Obtenir les détails d'une AREA |
+| PATCH | `/api/areas/{id}` | Mettre à jour une AREA |
+| DELETE | `/api/areas/{id}` | Supprimer une AREA |
+| POST | `/api/areas/{id}/activate` | Activer une AREA |
+| POST | `/api/areas/{id}/deactivate` | Désactiver une AREA |
+| POST | `/api/areas/{id}/test` | Tester manuellement une AREA |
+| GET | `/api/areas/{id}/executions` | Historique des exécutions |
+| GET | `/api/areas/{areaId}/executions/{executionId}` | Détails d'une exécution |
+
+---
 
 ### List User's Areas
 **GET** `/api/areas`
@@ -211,58 +242,172 @@ Toutes les réponses sont en JSON. Les erreurs suivent ce format :
 - **Sécurité** : Seul le propriétaire peut accéder
 
 ### Update Area
-**PUT** `/api/areas/{id}`
+**PATCH** `/api/areas/{id}`
 - **Headers** : `Authorization: Bearer <token>`
-- **Body** : Même structure que Create
+- **Body** :
+  ```json
+  {
+    "name": "string (optional)",
+    "description": "string (optional)",
+    "active": "boolean (optional)"
+  }
+  ```
 - **Response** : AREA mise à jour
-- **Note** : Permet de modifier configuration ou activer/désactiver
+- **Note** : Permet de modifier nom, description ou état actif/inactif
 
 ### Delete Area
 **DELETE** `/api/areas/{id}`
 - **Headers** : `Authorization: Bearer <token>`
-- **Response** : `{ "message": "Area deleted successfully" }`
-- **Effet** : Supprime aussi l'historique d'exécution
+- **Response** : `204 No Content` (corps vide)
+- **Effet** : Supprime l'AREA et son historique d'exécution
 
-### Toggle Area Active State
-**PATCH** `/api/areas/{id}/toggle`
+### Activate Area
+**POST** `/api/areas/{id}/activate`
 - **Headers** : `Authorization: Bearer <token>`
-- **Response** : AREA avec nouvel état `active`
-- **Utilisation** : Activer/désactiver sans supprimer
+- **Response** : AREA avec `active: true`
+- **Utilisation** : Activer une AREA désactivée
+
+### Deactivate Area
+**POST** `/api/areas/{id}/deactivate`
+- **Headers** : `Authorization: Bearer <token>`
+- **Response** : AREA avec `active: false`
+- **Utilisation** : Désactiver une AREA sans la supprimer
+
+### Test Area
+**POST** `/api/areas/{id}/test`
+- **Headers** : `Authorization: Bearer <token>`
+- **Response** : `{ "message": "Area test triggered successfully" }`
+- **Utilisation** : Déclencher manuellement une AREA pour tester
 
 ### Get Area Executions
 **GET** `/api/areas/{id}/executions`
 - **Headers** : `Authorization: Bearer <token>`
-- **Response** : Historique des exécutions
+- **Query Parameters** :
+  - `limit` : number (default: 50) - Nombre maximum d'exécutions à retourner
+- **Response** : Liste des exécutions de l'AREA
 - **Structure Execution** :
   ```json
   {
     "id": "ObjectId",
-    "status": "SUCCESS|FAILED",
+    "areaId": "ObjectId",
+    "status": "PENDING|IN_PROGRESS|PROCESSING|SUCCESS|FAILED",
     "startedAt": 1234567890,
     "completedAt": 1234567890,
-    "actionData": {},
-    "error": "null ou message"
+    "error": "null ou message",
+    "progress": 100,
+    "totalSteps": 3,
+    "currentStep": null,
+    "steps": [
+      {
+        "stepType": "ACTION",
+        "stepName": "Action: new_email",
+        "stepIndex": 0,
+        "status": "SUCCESS",
+        "startedAt": 1234567890,
+        "completedAt": 1234567891,
+        "duration": 1000,
+        "error": null
+      }
+    ]
   }
   ```
+- **Note** : `progress` va de 0 à 100%, `currentStep` est présent uniquement pendant l'exécution
+
+### Get Execution Details
+**GET** `/api/areas/{areaId}/executions/{executionId}`
+- **Headers** : `Authorization: Bearer <token>`
+- **Params** :
+  - `areaId` : ObjectId de l'AREA
+  - `executionId` : ObjectId de l'exécution
+- **Response** : Détails complets d'une exécution avec tracking en temps réel
+- **Structure** :
+  ```json
+  {
+    "id": "507f1f77bcf86cd799439013",
+    "areaId": "507f1f77bcf86cd799439010",
+    "status": "IN_PROGRESS",
+    "startedAt": 1635789012345,
+    "completedAt": null,
+    "error": null,
+    "currentStep": {
+      "type": "REACTION",
+      "name": "Reaction: send_message",
+      "index": 2,
+      "total": 3
+    },
+    "steps": [
+      {
+        "stepType": "ACTION",
+        "stepName": "Action: new_email",
+        "stepIndex": 0,
+        "status": "SUCCESS",
+        "startedAt": 1635789012345,
+        "completedAt": 1635789013000,
+        "duration": 655,
+        "error": null
+      },
+      {
+        "stepType": "REACTION",
+        "stepName": "Reaction 1: send_message",
+        "stepIndex": 1,
+        "status": "SUCCESS",
+        "startedAt": 1635789013000,
+        "completedAt": 1635789015678,
+        "duration": 2678,
+        "error": null
+      },
+      {
+        "stepType": "REACTION",
+        "stepName": "Reaction 2: log_info",
+        "stepIndex": 2,
+        "status": "IN_PROGRESS",
+        "startedAt": 1635789015678,
+        "completedAt": null,
+        "duration": null,
+        "error": null
+      }
+    ],
+    "progress": 66,
+    "totalSteps": 3
+  }
+  ```
+- **Utilisation** :
+  - Suivi en temps réel de l'exécution d'une AREA
+  - Afficher une barre de progression
+  - Identifier rapidement quelle étape a échoué
+  - Mesurer les performances de chaque réaction
+- **Note** :
+  - `currentStep` est null quand l'exécution est terminée
+  - `progress` représente le pourcentage d'avancement (0-100)
+  - Chaque `step` contient sa `duration` en millisecondes
 
 ---
 
 ## 🪝 Webhook Endpoints
 
 ### Trigger Webhook
-**POST** `/api/webhooks/trigger/{webhookId}`
-- **Params** : `webhookId` (unique ID du webhook)
-- **Body** : Données arbitraires (JSON)
-- **Headers** : Optionnel `X-Webhook-Secret` pour sécurité
-- **Response** : `{ "message": "Webhook triggered", "executionId": "..." }`
-- **Note** : Déclenche toutes les AREAs liées à ce webhook
-
-### Register Webhook (Internal)
-**POST** `/api/webhooks/register`
-- **Headers** : `Authorization: Bearer <token>`
-- **Body** : `{ "areaId": "ObjectId" }`
-- **Response** : `{ "webhookId": "unique-id", "url": "full-webhook-url" }`
-- **Utilisation** : Appelé automatiquement lors de la création d'AREA avec action webhook
+**POST** `/api/webhooks/{serviceId}/{hookId}`
+- **Params** :
+  - `serviceId` : ObjectId du service (MongoDB ObjectId)
+  - `hookId` : ID unique du webhook généré lors de la création de l'AREA
+- **Body** : Données arbitraires (texte brut ou JSON) - optionnel
+- **Response** : `{ "message": "Webhook received and processing started" }`
+- **Comportement** :
+  - Vérifie que le webhook est enregistré
+  - Vérifie que l'AREA associée existe et est active
+  - Déclenche l'exécution de l'AREA de manière asynchrone
+  - Retourne immédiatement (pas d'attente de l'exécution)
+- **Codes de retour** :
+  - `200 OK` : Webhook reçu et traitement démarré
+  - `400 Bad Request` : serviceId invalide
+  - `404 Not Found` : Webhook non enregistré ou AREA non trouvée
+- **Exemple** :
+  ```bash
+  curl -X POST http://localhost:8080/api/webhooks/507f1f77bcf86cd799439011/my-webhook-id \
+    -H "Content-Type: application/json" \
+    -d '{"event": "test", "data": "hello"}'
+  ```
+- **Note** : L'URL complète du webhook est fournie lors de la création d'une AREA avec action webhook
 
 ---
 

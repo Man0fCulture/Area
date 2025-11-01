@@ -1,0 +1,101 @@
+service:
+  id: discord
+  name: Discord
+  displayName: Discord
+  description: Send messages to Discord channels via webhooks
+  category: Communication
+  icon: discord.svg
+  color: "#5865F2"
+
+auth:
+  type: NONE  # Les webhooks Discord ne nécessitent pas d'auth OAuth
+
+# Discord ne supporte que les REActions (envoyer des messages)
+# Pas de triggers car les webhooks Discord sont entrants seulement
+actions: []
+
+reactions:
+  - id: send_message
+    name: Send Message
+    description: Send a message to a Discord channel via webhook
+    config:
+      - name: webhook_url
+        type: URL
+        label: Webhook URL
+        description: The Discord webhook URL (get it from Server Settings → Integrations → Webhooks)
+        required: true
+        placeholder: https://discord.com/api/webhooks/...
+
+      - name: content
+        type: TEXT
+        label: Message Content
+        description: The message to send (supports trigger data with {{trigger.field}})
+        required: true
+        placeholder: "New alert: {{trigger.title}}"
+
+      - name: username
+        type: STRING
+        label: Username (optional)
+        description: Override the default webhook username
+        required: false
+        placeholder: Area Bot
+
+      - name: avatar_url
+        type: URL
+        label: Avatar URL (optional)
+        description: Override the default webhook avatar
+        required: false
+        placeholder: https://example.com/avatar.png
+
+    endpoint:
+      method: POST
+      url: "{{config.webhook_url}}"
+      headers:
+        Content-Type: application/json
+      body:
+        content: "{{config.content}}"
+        username: "{{config.username}}"
+        avatar_url: "{{config.avatar_url}}"
+
+  - id: send_embed
+    name: Send Embed Message
+    description: Send a rich embedded message to Discord
+    config:
+      - name: webhook_url
+        type: URL
+        label: Webhook URL
+        description: The Discord webhook URL
+        required: true
+
+      - name: title
+        type: STRING
+        label: Embed Title
+        description: Title of the embed
+        required: true
+        placeholder: "Alert Title"
+
+      - name: description
+        type: TEXT
+        label: Embed Description
+        description: Description text (supports {{trigger.field}})
+        required: true
+
+      - name: color
+        type: STRING
+        label: Embed Color
+        description: Color in decimal format (e.g., 3447003 for blue)
+        required: false
+        default: "3447003"
+
+      - name: url
+        type: URL
+        label: URL (optional)
+        description: URL when clicking on the embed title
+        required: false
+
+    endpoint:
+      method: POST
+      url: "{{config.webhook_url}}"
+      headers:
+        Content-Type: application/json
+      bodyRaw: '{"embeds":[{"title":"{{config.title}}","description":"{{config.description}}","color":{{config.color}}{% if config.url %},"url":"{{config.url}}"{% endif %}}]}'

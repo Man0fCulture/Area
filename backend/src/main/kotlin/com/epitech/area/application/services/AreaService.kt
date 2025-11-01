@@ -8,6 +8,8 @@ import com.epitech.area.domain.repositories.AreaRepository
 import com.epitech.area.domain.repositories.ServiceRepository
 import com.epitech.area.domain.repositories.AreaExecutionRepository
 import com.epitech.area.infrastructure.hooks.HookScheduler
+import com.epitech.area.api.dto.responses.AreaExecutionResponse
+import com.epitech.area.api.dto.responses.toResponse
 import org.bson.types.ObjectId
 
 class AreaService(
@@ -175,7 +177,7 @@ class AreaService(
         areaId: ObjectId,
         userId: ObjectId,
         limit: Int
-    ): Result<List<AreaExecution>> {
+    ): Result<List<AreaExecutionResponse>> {
         val area = areaRepository.findById(areaId)
             ?: return Result.failure(Exception("Area not found"))
 
@@ -184,6 +186,28 @@ class AreaService(
         }
 
         val executions = areaExecutionRepository.findByAreaId(areaId, limit)
-        return Result.success(executions)
+        return Result.success(executions.map { it.toResponse() })
+    }
+
+    suspend fun getExecutionDetails(
+        areaId: ObjectId,
+        executionId: ObjectId,
+        userId: ObjectId
+    ): Result<AreaExecutionResponse> {
+        val area = areaRepository.findById(areaId)
+            ?: return Result.failure(Exception("Area not found"))
+
+        if (area.userId != userId) {
+            return Result.failure(Exception("Unauthorized"))
+        }
+
+        val execution = areaExecutionRepository.findById(executionId)
+            ?: return Result.failure(Exception("Execution not found"))
+
+        if (execution.areaId != areaId) {
+            return Result.failure(Exception("Execution does not belong to this area"))
+        }
+
+        return Result.success(execution.toResponse())
     }
 }

@@ -19,68 +19,129 @@ class HookProcessor(
 
     suspend fun processArea(area: Area): ProcessResult = withContext(Dispatchers.IO) {
         logger.info("Processing area ${area.id} - ${area.name}")
-        
+
         if (!area.active) {
             logger.warn("Area ${area.id} is inactive, skipping")
             return@withContext ProcessResult(success = false, error = "Area is inactive")
         }
 
+        val totalSteps = 1 + area.reactions.size
         val execution = AreaExecution(
             areaId = area.id,
             status = ExecutionStatus.PENDING,
-            startedAt = System.currentTimeMillis()
+            startedAt = System.currentTimeMillis(),
+            totalSteps = totalSteps,
+            progress = 0
         )
-        areaExecutionRepository.create(execution)
+        val savedExecution = areaExecutionRepository.create(execution)
 
         try {
+            updateExecutionWithStep(
+                savedExecution.id,
+                ExecutionStatus.IN_PROGRESS,
+                ExecutionStep(StepType.ACTION, "Executing action", 0, totalSteps),
+                0
+            )
+
+            val actionStartTime = System.currentTimeMillis()
             val actionResult = executeAction(area)
-            
+            val actionEndTime = System.currentTimeMillis()
+
+            val actionStepRecord = ExecutionStepRecord(
+                stepType = StepType.ACTION,
+                stepName = "Action: ${area.action.actionId}",
+                stepIndex = 0,
+                status = if (actionResult.success) ExecutionStatus.SUCCESS else ExecutionStatus.FAILED,
+                startedAt = actionStartTime,
+                completedAt = actionEndTime,
+                data = actionResult.data,
+                error = actionResult.error,
+                duration = actionEndTime - actionStartTime
+            )
+
             if (!actionResult.success) {
                 logger.warn("Action failed for area ${area.id}: ${actionResult.error}")
-                updateExecutionStatus(
-                    execution.id,
+                updateExecutionWithStepComplete(
+                    savedExecution.id,
                     ExecutionStatus.FAILED,
+                    actionStepRecord,
                     error = actionResult.error
                 )
                 return@withContext ProcessResult(success = false, error = actionResult.error)
             }
 
-            updateExecutionStatus(execution.id, ExecutionStatus.PROCESSING, actionData = actionResult.data)
+            updateExecutionWithStepComplete(
+                savedExecution.id,
+                ExecutionStatus.PROCESSING,
+                actionStepRecord,
+                actionData = actionResult.data
+            )
 
             var allReactionsSucceeded = true
             val reactionErrors = mutableListOf<String>()
 
             for ((index, reaction) in area.reactions.withIndex()) {
-                logger.info("Executing reaction ${index + 1}/${area.reactions.size} for area ${area.id}")
-                
+                val stepIndex = index + 1
+                val progress = ((stepIndex.toDouble() / totalSteps) * 100).toInt()
+
+                logger.info("Executing reaction ${stepIndex}/${area.reactions.size} for area ${area.id}")
+
+                updateExecutionWithStep(
+                    savedExecution.id,
+                    ExecutionStatus.IN_PROGRESS,
+                    ExecutionStep(StepType.REACTION, "Reaction: ${reaction.reactionId}", stepIndex, totalSteps),
+                    progress
+                )
+
+                val reactionStartTime = System.currentTimeMillis()
                 val reactionResult = executeReaction(reaction, actionResult.data, area.userId)
-                
+                val reactionEndTime = System.currentTimeMillis()
+
+                val reactionStepRecord = ExecutionStepRecord(
+                    stepType = StepType.REACTION,
+                    stepName = "Reaction ${stepIndex}: ${reaction.reactionId}",
+                    stepIndex = stepIndex,
+                    status = if (reactionResult.success) ExecutionStatus.SUCCESS else ExecutionStatus.FAILED,
+                    startedAt = reactionStartTime,
+                    completedAt = reactionEndTime,
+                    data = if (reactionResult.message != null) Document("message", reactionResult.message) else null,
+                    error = reactionResult.error,
+                    duration = reactionEndTime - reactionStartTime
+                )
+
                 if (!reactionResult.success) {
-                    logger.error("Reaction ${index + 1} failed: ${reactionResult.error}")
+                    logger.error("Reaction ${stepIndex} failed: ${reactionResult.error}")
                     allReactionsSucceeded = false
-                    reactionErrors.add("Reaction ${index + 1}: ${reactionResult.error}")
+                    reactionErrors.add("Reaction ${stepIndex}: ${reactionResult.error}")
                 } else {
-                    logger.info("Reaction ${index + 1} succeeded")
+                    logger.info("Reaction ${stepIndex} succeeded")
                 }
+
+                updateExecutionWithStepComplete(
+                    savedExecution.id,
+                    if (allReactionsSucceeded) ExecutionStatus.PROCESSING else ExecutionStatus.IN_PROGRESS,
+                    reactionStepRecord
+                )
             }
 
             if (allReactionsSucceeded) {
-                updateExecutionStatus(execution.id, ExecutionStatus.SUCCESS)
+                updateExecutionStatus(savedExecution.id, ExecutionStatus.SUCCESS, progress = 100)
                 updateAreaStats(area.id)
                 logger.info("Area ${area.id} executed successfully")
                 ProcessResult(success = true, message = "Area executed successfully")
             } else {
                 updateExecutionStatus(
-                    execution.id,
+                    savedExecution.id,
                     ExecutionStatus.FAILED,
-                    error = reactionErrors.joinToString("; ")
+                    error = reactionErrors.joinToString("; "),
+                    progress = 100
                 )
                 ProcessResult(success = false, error = reactionErrors.joinToString("; "))
             }
 
         } catch (e: Exception) {
             logger.error("Unexpected error processing area ${area.id}", e)
-            updateExecutionStatus(execution.id, ExecutionStatus.FAILED, error = e.message)
+            updateExecutionStatus(savedExecution.id, ExecutionStatus.FAILED, error = e.message, progress = 100)
             ProcessResult(success = false, error = e.message ?: "Unknown error")
         }
     }
@@ -158,22 +219,66 @@ class HookProcessor(
         executionId: org.bson.types.ObjectId,
         status: ExecutionStatus,
         actionData: Document? = null,
-        error: String? = null
+        error: String? = null,
+        progress: Int? = null
     ) {
         val execution = areaExecutionRepository.findById(executionId) ?: return
-        
+
         val updated = execution.copy(
             status = status,
             actionData = actionData ?: execution.actionData,
             error = error,
+            progress = progress ?: execution.progress,
             completedAt = if (status == ExecutionStatus.SUCCESS || status == ExecutionStatus.FAILED) {
                 System.currentTimeMillis()
             } else {
                 null
             }
         )
-        
+
         areaExecutionRepository.update(updated)
+    }
+
+    private suspend fun updateExecutionWithStep(
+        executionId: org.bson.types.ObjectId,
+        status: ExecutionStatus,
+        currentStep: ExecutionStep,
+        progress: Int
+    ) {
+        val execution = areaExecutionRepository.findById(executionId) ?: return
+
+        val updated = execution.copy(
+            status = status,
+            currentStep = currentStep,
+            progress = progress
+        )
+
+        areaExecutionRepository.update(updated)
+    }
+
+    private suspend fun updateExecutionWithStepComplete(
+        executionId: org.bson.types.ObjectId,
+        status: ExecutionStatus,
+        stepRecord: ExecutionStepRecord,
+        actionData: Document? = null,
+        error: String? = null
+    ): AreaExecution {
+        val execution = areaExecutionRepository.findById(executionId) ?: throw IllegalStateException("Execution not found")
+
+        val updatedSteps = execution.steps + stepRecord
+        val progress = ((updatedSteps.size.toDouble() / execution.totalSteps) * 100).toInt()
+
+        val updated = execution.copy(
+            status = status,
+            steps = updatedSteps,
+            progress = progress,
+            actionData = actionData ?: execution.actionData,
+            error = error,
+            currentStep = null
+        )
+
+        areaExecutionRepository.update(updated)
+        return updated
     }
 
     private suspend fun updateAreaStats(areaId: org.bson.types.ObjectId) {

@@ -74,6 +74,15 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
+    // YAML parsing for dynamic service loading
+    implementation("com.charleskorn.kaml:kaml:0.55.0")
+
+    // JSONPath for data extraction
+    implementation("com.jayway.jsonpath:json-path:2.8.0")
+
+    // Template engine for dynamic URL/body generation
+    implementation("com.hubspot.jinjava:jinjava:2.7.1")
+
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
     testImplementation("io.mockk:mockk:1.13.9")
@@ -88,7 +97,7 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 // Configure run task to load .env file
@@ -99,8 +108,13 @@ tasks.named<JavaExec>("run") {
         envFile.readLines().forEach { line ->
             val trimmedLine = line.trim()
             if (trimmedLine.isNotEmpty() && !trimmedLine.startsWith("#") && trimmedLine.contains("=")) {
-                val (key, value) = trimmedLine.split("=", limit = 2)
-                environment[key.trim()] = value.trim()
+                val parts = trimmedLine.split("=", limit = 2)
+                val key = parts[0].trim()
+                val value = if (parts.size > 1) parts[1].trim() else ""
+                // Only set non-empty values
+                if (value.isNotEmpty()) {
+                    environment[key] = value
+                }
             }
         }
     }

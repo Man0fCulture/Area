@@ -33,7 +33,7 @@ fun Route.servicesRoutes(serviceRepository: ServiceRepository) {
             if (service == null) {
                 call.respond(HttpStatusCode.NotFound, mapOf("error" to "Service not found"))
             } else {
-                call.respond(HttpStatusCode.OK, service)
+                call.respond(HttpStatusCode.OK, service.toResponse())
             }
         }
     }

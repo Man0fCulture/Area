@@ -274,6 +274,41 @@ fun Route.areasRoutes(areaService: AreaService) {
                     }
                 )
             }
+
+            get("/{areaId}/executions/{executionId}") {
+                val areaId = try {
+                    ObjectId(call.parameters["areaId"])
+                } catch (e: Exception) {
+                    return@get call.respond(
+                        HttpStatusCode.BadRequest,
+                        mapOf("error" to "Invalid area ID")
+                    )
+                }
+
+                val executionId = try {
+                    ObjectId(call.parameters["executionId"])
+                } catch (e: Exception) {
+                    return@get call.respond(
+                        HttpStatusCode.BadRequest,
+                        mapOf("error" to "Invalid execution ID")
+                    )
+                }
+
+                val userId = call.getCurrentUserId()
+                val result = areaService.getExecutionDetails(areaId, executionId, userId)
+
+                result.fold(
+                    onSuccess = { execution ->
+                        call.respond(HttpStatusCode.OK, execution)
+                    },
+                    onFailure = { error ->
+                        call.respond(
+                            HttpStatusCode.NotFound,
+                            mapOf("error" to (error.message ?: "Execution not found"))
+                        )
+                    }
+                )
+            }
         }
     }
 }

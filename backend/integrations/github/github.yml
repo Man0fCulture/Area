@@ -1,0 +1,273 @@
+service:
+  id: github_public
+  name: GitHub Public
+  displayName: GitHub (Public)
+  description: Monitor public GitHub repositories without authentication
+  category: Developer Tools
+  icon: github.svg
+  color: "#181717"
+  baseUrl: https://api.github.com
+
+auth:
+  type: NONE  # API publique pour repos publics
+
+actions:
+  - id: new_release
+    name: New Release
+    description: Triggers when a new release is published on a repository
+    type: POLLING
+    pollInterval: 300  # 5 minutes
+    config:
+      - name: owner
+        type: STRING
+        label: Repository Owner
+        description: GitHub username or organization
+        required: true
+        placeholder: torvalds
+
+      - name: repo
+        type: STRING
+        label: Repository Name
+        description: Name of the repository
+        required: true
+        placeholder: linux
+
+    endpoint:
+      method: GET
+      url: "{{service.baseUrl}}/repos/{{config.owner}}/{{config.repo}}/releases/latest"
+      headers:
+        Accept: application/vnd.github+json
+        User-Agent: Area-App
+
+    output:
+      - name: release_name
+        type: string
+        jsonPath: $.name
+
+      - name: tag_name
+        type: string
+        jsonPath: $.tag_name
+
+      - name: body
+        type: string
+        jsonPath: $.body
+
+      - name: author
+        type: string
+        jsonPath: $.author.login
+
+      - name: html_url
+        type: string
+        jsonPath: $.html_url
+
+      - name: published_at
+        type: string
+        jsonPath: $.published_at
+
+      - name: download_url
+        type: string
+        jsonPath: $.assets[0].browser_download_url
+
+    condition: "$.id != null"
+
+  - id: new_commit
+    name: New Commit
+    description: Triggers when new commits are pushed to a branch
+    type: POLLING
+    pollInterval: 180  # 3 minutes
+    config:
+      - name: owner
+        type: STRING
+        label: Repository Owner
+        required: true
+
+      - name: repo
+        type: STRING
+        label: Repository Name
+        required: true
+
+      - name: branch
+        type: STRING
+        label: Branch Name
+        description: Branch to monitor
+        required: false
+        default: main
+
+    endpoint:
+      method: GET
+      url: "{{service.baseUrl}}/repos/{{config.owner}}/{{config.repo}}/commits"
+      headers:
+        Accept: application/vnd.github+json
+        User-Agent: Area-App
+      params:
+        sha: "{{config.branch}}"
+        per_page: "1"
+
+    output:
+      - name: commit_sha
+        jsonPath: $[0].sha
+
+      - name: commit_message
+        jsonPath: $[0].commit.message
+
+      - name: author_name
+        jsonPath: $[0].commit.author.name
+
+      - name: author_email
+        jsonPath: $[0].commit.author.email
+
+      - name: commit_url
+        jsonPath: $[0].html_url
+
+      - name: commit_date
+        jsonPath: $[0].commit.author.date
+
+    condition: "$[0].sha != null"
+
+  - id: repo_star_count
+    name: Star Count Milestone
+    description: Triggers when repository reaches a star count milestone
+    type: POLLING
+    pollInterval: 600  # 10 minutes
+    config:
+      - name: owner
+        type: STRING
+        label: Repository Owner
+        required: true
+
+      - name: repo
+        type: STRING
+        label: Repository Name
+        required: true
+
+      - name: milestone
+        type: NUMBER
+        label: Star Milestone
+        description: Number of stars to trigger (e.g., 1000)
+        required: true
+        placeholder: "1000"
+
+    endpoint:
+      method: GET
+      url: "{{service.baseUrl}}/repos/{{config.owner}}/{{config.repo}}"
+      headers:
+        Accept: application/vnd.github+json
+        User-Agent: Area-App
+
+    output:
+      - name: stars
+        jsonPath: $.stargazers_count
+
+      - name: forks
+        jsonPath: $.forks_count
+
+      - name: watchers
+        jsonPath: $.watchers_count
+
+      - name: repo_name
+        jsonPath: $.full_name
+
+      - name: description
+        jsonPath: $.description
+
+    condition: "$.stargazers_count >= {{config.milestone}}"
+
+  - id: new_issue
+    name: New Issue
+    description: Triggers when a new issue is opened
+    type: POLLING
+    pollInterval: 300
+    config:
+      - name: owner
+        type: STRING
+        label: Repository Owner
+        required: true
+
+      - name: repo
+        type: STRING
+        label: Repository Name
+        required: true
+
+      - name: label
+        type: STRING
+        label: Filter by Label (optional)
+        description: Only trigger for issues with this label
+        required: false
+
+    endpoint:
+      method: GET
+      url: "{{service.baseUrl}}/repos/{{config.owner}}/{{config.repo}}/issues"
+      headers:
+        Accept: application/vnd.github+json
+        User-Agent: Area-App
+      params:
+        state: open
+        sort: created
+        direction: desc
+        per_page: "1"
+        labels: "{{config.label}}"
+
+    output:
+      - name: issue_number
+        jsonPath: $[0].number
+
+      - name: issue_title
+        jsonPath: $[0].title
+
+      - name: issue_body
+        jsonPath: $[0].body
+
+      - name: issue_author
+        jsonPath: $[0].user.login
+
+      - name: issue_url
+        jsonPath: $[0].html_url
+
+      - name: issue_labels
+        jsonPath: $[0].labels[*].name
+
+      - name: created_at
+        jsonPath: $[0].created_at
+
+    condition: "$[0].number != null"
+
+reactions:
+  - id: get_repo_info
+    name: Get Repository Info
+    description: Get information about a public repository
+    config:
+      - name: owner
+        type: STRING
+        label: Repository Owner
+        required: true
+        placeholder: "{{trigger.owner}}"
+
+      - name: repo
+        type: STRING
+        label: Repository Name
+        required: true
+        placeholder: "{{trigger.repo}}"
+
+    endpoint:
+      method: GET
+      url: "{{service.baseUrl}}/repos/{{config.owner}}/{{config.repo}}"
+      headers:
+        Accept: application/vnd.github+json
+        User-Agent: Area-App
+
+  - id: get_user_info
+    name: Get User Info
+    description: Get information about a GitHub user
+    config:
+      - name: username
+        type: STRING
+        label: GitHub Username
+        required: true
+        placeholder: "{{trigger.author}}"
+
+    endpoint:
+      method: GET
+      url: "{{service.baseUrl}}/users/{{config.username}}"
+      headers:
+        Accept: application/vnd.github+json
+        User-Agent: Area-App

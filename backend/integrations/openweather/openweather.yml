@@ -1,0 +1,180 @@
+service:
+  id: openweather
+  name: OpenWeatherMap
+  displayName: OpenWeatherMap
+  description: Get weather data and forecasts
+  category: Weather
+  icon: weather.svg
+  color: "#EB6E4B"
+  baseUrl: https://api.openweathermap.org/data/2.5
+
+auth:
+  type: API_KEY
+  apiKey:
+    header: X-API-Key
+    prefix: ""
+    envVar: OPENWEATHER_API_KEY
+
+actions:
+  - id: current_weather_change
+    name: Weather Condition Change
+    description: Triggers when weather condition changes in a city
+    type: POLLING
+    pollInterval: 600  # Toutes les 10 minutes (recommandation OpenWeather)
+    config:
+      - name: city
+        type: STRING
+        label: City Name
+        description: Name of the city to monitor
+        required: true
+        placeholder: Paris
+
+      - name: country_code
+        type: STRING
+        label: Country Code (optional)
+        description: ISO 3166 country code
+        required: false
+        placeholder: FR
+
+      - name: units
+        type: SELECT
+        label: Units
+        description: Temperature units
+        required: false
+        default: metric
+        options:
+          - metric
+          - imperial
+          - standard
+
+    endpoint:
+      method: GET
+      url: "{{service.baseUrl}}/weather"
+      params:
+        q: "{{config.city}}{% if config.country_code %},{{config.country_code}}{% endif %}"
+        units: "{{config.units}}"
+        appid: "{{env.OPENWEATHER_API_KEY}}"
+
+    output:
+      - name: temperature
+        type: number
+        jsonPath: $.main.temp
+
+      - name: feels_like
+        type: number
+        jsonPath: $.main.feels_like
+
+      - name: weather_main
+        type: string
+        jsonPath: $.weather[0].main
+
+      - name: weather_description
+        type: string
+        jsonPath: $.weather[0].description
+
+      - name: humidity
+        type: number
+        jsonPath: $.main.humidity
+
+      - name: pressure
+        type: number
+        jsonPath: $.main.pressure
+
+      - name: wind_speed
+        type: number
+        jsonPath: $.wind.speed
+
+      - name: city_name
+        type: string
+        jsonPath: $.name
+
+      - name: country
+        type: string
+        jsonPath: $.sys.country
+
+    # Condition: toujours déclenché pour obtenir les dernières données
+    condition: "$.cod == 200"
+
+  - id: temperature_threshold
+    name: Temperature Threshold
+    description: Triggers when temperature crosses a threshold
+    type: POLLING
+    pollInterval: 600
+    config:
+      - name: city
+        type: STRING
+        label: City Name
+        required: true
+
+      - name: threshold
+        type: NUMBER
+        label: Temperature Threshold
+        description: Temperature threshold in selected units
+        required: true
+        placeholder: "25"
+
+      - name: condition
+        type: SELECT
+        label: Condition
+        description: Trigger when temperature is above or below threshold
+        required: true
+        default: above
+        options:
+          - above
+          - below
+
+      - name: units
+        type: SELECT
+        label: Units
+        required: false
+        default: metric
+        options:
+          - metric
+          - imperial
+
+    endpoint:
+      method: GET
+      url: "{{service.baseUrl}}/weather"
+      params:
+        q: "{{config.city}}"
+        units: "{{config.units}}"
+        appid: "{{env.OPENWEATHER_API_KEY}}"
+
+    output:
+      - name: temperature
+        jsonPath: $.main.temp
+      - name: city_name
+        jsonPath: $.name
+      - name: weather_description
+        jsonPath: $.weather[0].description
+
+    # Condition basée sur le seuil
+    condition: "$.main.temp {% if config.condition == 'above' %}>{% else %}<{% endif %} {{config.threshold}}"
+
+reactions:
+  - id: get_current_weather
+    name: Get Current Weather
+    description: Get current weather for a city (useful to chain with other actions)
+    config:
+      - name: city
+        type: STRING
+        label: City Name
+        required: true
+        placeholder: "{{trigger.city_name}}"
+
+      - name: units
+        type: SELECT
+        label: Units
+        required: false
+        default: metric
+        options:
+          - metric
+          - imperial
+
+    endpoint:
+      method: GET
+      url: "{{service.baseUrl}}/weather"
+      params:
+        q: "{{config.city}}"
+        units: "{{config.units}}"
+        appid: "{{env.OPENWEATHER_API_KEY}}"
